@@ -1,0 +1,34 @@
+-main ApplicationMain 
+-cp /home/gui/haxelib/flixel/4,6,1
+-D flixel=4.6.1
+--macro openfl._internal.macros.ExtraParams.include()
+-cp /home/gui/haxelib/openfl/8,9,0/src
+-D openfl=8.9.0
+--macro lime._internal.macros.DefineMacro.run()
+-cp /home/gui/haxelib/lime/7,3,0/src
+-D lime=7.3.0
+--macro keep('IntIterator')
+-cp /home/gui/haxelib/hscript/2,3,0
+-D hscript=2.3.0
+-cp source
+-D tools=7.3.0
+-D lime-canvas
+-D FLX_NO_DEBUG
+-D howlerjs
+-D no-compilation
+-D openfl-html5
+-D NAPE_RELEASE_BUILD
+-D lime-webgl
+-D lime-dom
+-D lime-howlerjs
+-D lime-html5
+-D html5
+-D web
+--remap flash:openfl
+--macro flixel.system.macros.FlxDefines.run()
+--connect
+6000
+-js export/html5/bin/rupb.js
+-cp export/html5/haxe
+-D html5
+-debug
