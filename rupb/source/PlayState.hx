@@ -30,12 +30,12 @@ class PlayState extends FlxState{
 
 		//https://opengameart.org/content/a-platformer-in-the-forest
 
-		_player = new Player(10, 10);
+		_player = new Player(0, 0);
 
-		add(_player);
 		add(_bkColor);
 		add(_bk);
 		add(_walls);
+		add(_player);
 		
 		super.create();
 	}
