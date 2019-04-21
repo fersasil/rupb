@@ -10,7 +10,7 @@ import flixel.addons.editors.ogmo.FlxOgmoLoader;
 
 
 class PlayState extends FlxState{
-	//var _player:Player;
+	var _player:Player;
 	var _map:FlxOgmoLoader;
 	var _walls:FlxTilemap;
 	var _bk:FlxTilemap;
@@ -26,7 +26,13 @@ class PlayState extends FlxState{
 		_walls.follow();
 		_walls.setTileProperties(1, FlxObject.NONE); //Não colidir -> aqui é o chão
 		_walls.setTileProperties(2, FlxObject.ANY); //Colidir -> parede de todas as direções
+		
 
+		//https://opengameart.org/content/a-platformer-in-the-forest
+
+		_player = new Player(10, 10);
+
+		add(_player);
 		add(_bkColor);
 		add(_bk);
 		add(_walls);

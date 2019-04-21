@@ -10,8 +10,8 @@ class CreditState extends FlxState{
     var _arte: FlxText;
 
 	override public function create():Void{
-        var PROGRAMADOR = "[PROGRAMADOR]:\nGUILHERME";
-        var ARTE = "[ARTE]\nA ARTE VIRA AQUI";
+        var PROGRAMADOR = "[PROGRAMADOR]:\nGUILHERMEAAAAA";
+        var ARTE = "[ARTE]\nA platformer in the forest tileset by Buch\navailable at https://opengameart.org/users/buch";
 
         _programmer = new FlxText(0, 0, 0, PROGRAMADOR, 30);
         _arte = new FlxText(0, 0, 0, ARTE, 30);
