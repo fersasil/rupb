@@ -1,5 +1,6 @@
 package;
 
+import openfl.events.EventDispatcher;
 import flixel.FlxState;
 import flixel.group.FlxGroup;
 import flixel.tile.FlxTilemap;
@@ -30,7 +31,9 @@ class PlayState extends FlxState{
 
 		//https://opengameart.org/content/a-platformer-in-the-forest
 
-		_player = new Player(0, 0);
+		_player = new Player();
+		//Colocar o jogador e as outras coisas no lugar certo do mapa
+		_map.loadEntities(placeEntities, "entity");
 
 		add(_bkColor);
 		add(_bk);
@@ -38,6 +41,16 @@ class PlayState extends FlxState{
 		add(_player);
 		
 		super.create();
+	}
+
+	function placeEntities(entityName:String, entityData:Xml):Void{
+		var x:Int = Std.parseInt(entityData.get("x"));
+		var y:Int = Std.parseInt(entityData.get("y"));
+		
+		if(entityName == "player"){
+			_player.x = x;
+			_player.y = y;
+		}
 	}
 
 	override public function update(elapsed:Float):Void{
