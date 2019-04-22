@@ -1,5 +1,6 @@
 package;
 
+import flixel.FlxObject;
 import flixel.FlxG;
 import flixel.util.FlxColor;
 import flixel.FlxSprite;
@@ -12,7 +13,7 @@ class Player extends FlxSprite {
         
         makeGraphic(16, 16, FlxColor.BLUE);
         drag.x = drag.y = 1600;
-        acceleration.y = 400; //Cria Gravidade
+        acceleration.y = 1000; //Cria Gravidade
         //Criar animações
 
     }
@@ -44,9 +45,10 @@ class Player extends FlxSprite {
         if(_esquerda && _direita){
             _esquerda = _direita = false;
         }
+        
 
-        if(_cima){
-            velocity.y = -velocidade;
+        if(_cima && this.isTouching(FlxObject.FLOOR)){
+            velocity.y = - velocidade;
             //facing = FlxObject.UP;
         }
         if(_baixo){
@@ -63,6 +65,9 @@ class Player extends FlxSprite {
             velocity.x = -velocidade;
             //facing = FlxObject.LEFT;
         }
+        /*if(_cima && this.isTouching(FlxObject.ESCADA)){
+
+        }*/
 
         //Só devera haver animação enquanto as teclas serem pressionadas
     /*

@@ -33,6 +33,11 @@ class PlayState extends FlxState{
 		_walls.setTileProperties(92, FlxObject.NONE); //Não colidir com escada
 		_walls.setTileProperties(109, FlxObject.NONE); //Escada inicio
 		_walls.setTileProperties(75, FlxObject.NONE); //Escada fim
+		_walls.setTileProperties(42, FlxObject.FLOOR);
+		_walls.setTileProperties(45, FlxObject.FLOOR);
+		_walls.setTileProperties(46, FlxObject.FLOOR);
+
+
 
 		//https://opengameart.org/content/a-platformer-in-the-forest
 

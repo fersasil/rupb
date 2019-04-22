@@ -894,9 +894,9 @@ ApplicationMain.create = function(config) {
 	ManifestResources.init(config);
 	var _this = app.meta;
 	if(__map_reserved["build"] != null) {
-		_this.setReserved("build","9");
+		_this.setReserved("build","10");
 	} else {
-		_this.h["build"] = "9";
+		_this.h["build"] = "10";
 	}
 	var _this1 = app.meta;
 	if(__map_reserved["company"] != null) {
@@ -8050,49 +8050,29 @@ var Player = function(X,Y) {
 	if(X == null) {
 		X = 0;
 	}
-	this.velocidade = 200;
 	flixel_FlxSprite.call(this,X,Y);
 	this.makeGraphic(16,16,-16776961);
-	this.drag.set_x(this.drag.set_y(1600));
-	this.acceleration.set_y(400);
 };
 $hxClasses["Player"] = Player;
 Player.__name__ = "Player";
 Player.__super__ = flixel_FlxSprite;
 Player.prototype = $extend(flixel_FlxSprite.prototype,{
-	velocidade: null
-	,update: function(elapsed) {
+	update: function(elapsed) {
 		this.movement();
 		flixel_FlxSprite.prototype.update.call(this,elapsed);
 	}
 	,movement: function() {
-		var _cima = false;
-		var _baixo = false;
-		var _esquerda = false;
-		var _direita = false;
-		_cima = flixel_FlxG.keys.checkKeyArrayState([38,87],1);
-		_baixo = flixel_FlxG.keys.checkKeyArrayState([40,83],1);
-		_esquerda = flixel_FlxG.keys.checkKeyArrayState([37,65],1);
-		_direita = flixel_FlxG.keys.checkKeyArrayState([39,68],1);
-		if(_cima && _baixo) {
-			_baixo = false;
-			_cima = _baixo;
+		this.acceleration.set_x(0);
+		if(flixel_FlxG.keys.checkKeyArrayState([37,65],1)) {
+			var _g = this.acceleration;
+			_g.set_x(_g.x - this.maxVelocity.x / 2);
 		}
-		if(_esquerda && _direita) {
-			_direita = false;
-			_esquerda = _direita;
+		if(flixel_FlxG.keys.checkKeyArrayState([39,68],1)) {
+			var _g1 = this.acceleration;
+			_g1.set_x(_g1.x + this.maxVelocity.x / 4);
 		}
-		if(_cima) {
-			this.velocity.set_y(-this.velocidade);
-		}
-		if(_baixo) {
-			this.velocity.set_y(0);
-		}
-		if(_direita) {
-			this.velocity.set_x(this.velocidade);
-		}
-		if(_esquerda) {
-			this.velocity.set_x(-this.velocidade);
+		if(flixel_FlxG.keys.checkKeyArrayState([87,38,32],1) && (this.touching & 4096) > 0) {
+			this.velocity.set_y(-this.maxVelocity.y / 2);
 		}
 	}
 	,__class__: Player

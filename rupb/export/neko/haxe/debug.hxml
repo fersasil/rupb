@@ -17,14 +17,13 @@
 -D native
 -D lime-curl
 -D openfl-native
+-D openfl-disable-handle-error
 -D lime-harfbuzz
 -D tools=7.3.0
 -D lime-cairo
 -D NAPE_NO_INLINE
--D FLX_NO_DEBUG
 -D lime-opengl
 -D no-compilation
--D NAPE_RELEASE_BUILD
 -D FLX_NO_TOUCH
 -D lime-native
 -D lime-vorbis
