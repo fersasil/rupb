@@ -1,5 +1,7 @@
 package;
 
+import flixel.FlxCamera;
+import flixel.util.FlxColor;
 import openfl.events.EventDispatcher;
 import flixel.FlxState;
 import flixel.group.FlxGroup;
@@ -17,8 +19,8 @@ class PlayState extends FlxState{
 	var _bk:FlxTilemap;
 	var _bkColor:FlxTilemap;
 
-	override public function create():Void{
-		_map = new FlxOgmoLoader(AssetPaths.room_001__oel);
+	override public function create():Void { 
+		_map = new FlxOgmoLoader(AssetPaths.room_002__oel);
 		//Carrega os layers do mapa
 		_walls = _map.loadTilemap(AssetPaths.tiles__png, 16, 16, "walls");
 		_bk = _map.loadTilemap(AssetPaths.tiles__png, 16, 16, "bk");
@@ -39,6 +41,20 @@ class PlayState extends FlxState{
 		add(_bk);
 		add(_walls);
 		add(_player);
+
+		// Create the FlxZoomCamera and pass in the default
+		// camera's x/y/width/height/zoom values, then make
+		// it follow the player
+		// Set camera bounds so the camera doesn't show off-screen area
+		// camera = new FlxCamera(0, 0, 230, 180);
+		//camera.bgColor = FlxColor.TRANSPARENT;
+		// camera.setScrollBoundsRect(0, 0, 1000, 700);
+		// FlxG.cameras.reset(camera);
+		// camera.style = PLATFORMER;
+		//camera.setPosition(-_map.width/2, 0);
+		// camera.target = _player;
+		// camera.setBounds(200, 200);
+		FlxG.camera.follow(_player);
 		
 		super.create();
 	}

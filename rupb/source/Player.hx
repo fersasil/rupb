@@ -5,7 +5,7 @@ import flixel.util.FlxColor;
 import flixel.FlxSprite;
 
 class Player extends FlxSprite {
-    var velocidade:Float = 100;
+    var velocidade:Float = 300;
 
     override public function new(?X:Float = 0, ?Y: Float = 0){
         super(X, Y);
