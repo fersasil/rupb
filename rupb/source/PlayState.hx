@@ -14,19 +14,22 @@ class PlayState extends FlxState{
 	var _map:FlxOgmoLoader;
 	var _walls:FlxTilemap;
 	var _bk:FlxTilemap;
+	var _bkColor:FlxTilemap;
 
 	override public function create():Void{
 		_map = new FlxOgmoLoader(AssetPaths.room_001__oel);
 		//Carrega os layers do mapa
-		_walls = _map.loadTilemap(AssetPaths.kenney_16x16__png, 16, 16, "walls");
-		_bk = _map.loadTilemap(AssetPaths.kenney_16x16__png, 16, 16, "bk");
-
+		_walls = _map.loadTilemap(AssetPaths.tiles__png, 16, 16, "walls");
+		_bk = _map.loadTilemap(AssetPaths.tiles__png, 16, 16, "bk");
+		_bkColor = _map.loadTilemap(AssetPaths.tiles__png, 16, 16, "color");
+		
 		_walls.follow();
 		_walls.setTileProperties(1, FlxObject.NONE); //Não colidir -> aqui é o chão
 		_walls.setTileProperties(2, FlxObject.ANY); //Colidir -> parede de todas as direções
 
-		add(_walls);
+		add(_bkColor);
 		add(_bk);
+		add(_walls);
 		
 		super.create();
 	}

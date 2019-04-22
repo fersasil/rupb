@@ -5,7 +5,7 @@
   <BackgroundColor A="255" R="125" G="160" B="255" />
   <GridColor A="255" R="255" G="240" B="90" />
   <LevelDefaultSize>
-    <Width>210</Width>
+    <Width>205</Width>
     <Height>600</Height>
   </LevelDefaultSize>
   <LevelMinimumSize>
@@ -16,7 +16,7 @@
     <Width>700</Width>
     <Height>480</Height>
   </LevelMaximumSize>
-  <Filename>C:\Users\G\Documents\GitHub\-GAMES-2019-T1\rupb\assets\data\RUP.oep</Filename>
+  <Filename>C:\Users\G\Desktop\-GAMES-2019-T1\rupb\assets\data\RUP.oep</Filename>
   <AngleMode>Degrees</AngleMode>
   <CameraEnabled>false</CameraEnabled>
   <CameraSize>
@@ -28,6 +28,18 @@
     <ValueDefinition xsi:type="IntValueDefinition" Name="room" Default="0" Min="0" Max="100" ShowSlider="false" />
   </LevelValueDefinitions>
   <LayerDefinitions>
+    <LayerDefinition xsi:type="TileLayerDefinition">
+      <Name>color</Name>
+      <Grid>
+        <Width>16</Width>
+        <Height>16</Height>
+      </Grid>
+      <ScrollFactor>
+        <X>1</X>
+        <Y>1</Y>
+      </ScrollFactor>
+      <ExportMode>CSV</ExportMode>
+    </LayerDefinition>
     <LayerDefinition xsi:type="TileLayerDefinition">
       <Name>bk</Name>
       <Grid>
@@ -66,8 +78,8 @@
   </LayerDefinitions>
   <Tilesets>
     <Tileset>
-      <Name>kenny</Name>
-      <FilePath>..\images\kenney_16x16.png</FilePath>
+      <Name>darkFlorest</Name>
+      <FilePath>..\images\tiles.png</FilePath>
       <TileSize>
         <Width>16</Width>
         <Height>16</Height>
