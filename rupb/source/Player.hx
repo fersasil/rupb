@@ -5,14 +5,14 @@ import flixel.util.FlxColor;
 import flixel.FlxSprite;
 
 class Player extends FlxSprite {
-    var velocidade:Float = 300;
+    var velocidade:Float = 200;
 
     override public function new(?X:Float = 0, ?Y: Float = 0){
         super(X, Y);
         
         makeGraphic(16, 16, FlxColor.BLUE);
         drag.x = drag.y = 1600;
-
+        acceleration.y = 400; //Cria Gravidade
         //Criar animações
 
     }

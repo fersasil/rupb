@@ -27,9 +27,12 @@ class PlayState extends FlxState{
 		_bkColor = _map.loadTilemap(AssetPaths.tiles__png, 16, 16, "color");
 		
 		_walls.follow();
-		_walls.setTileProperties(1, FlxObject.NONE); //Não colidir -> aqui é o chão
-		_walls.setTileProperties(2, FlxObject.ANY); //Colidir -> parede de todas as direções
-		
+		//_walls.setTileProperties(1, FlxObject.NONE); //Não colidir -> aqui é o chão
+		//_walls.setTileProperties(2, FlxObject.ANY); //Colidir -> parede de todas as direções
+
+		_walls.setTileProperties(92, FlxObject.NONE); //Não colidir com escada
+		_walls.setTileProperties(109, FlxObject.NONE); //Escada inicio
+		_walls.setTileProperties(75, FlxObject.NONE); //Escada fim
 
 		//https://opengameart.org/content/a-platformer-in-the-forest
 
@@ -71,5 +74,6 @@ class PlayState extends FlxState{
 
 	override public function update(elapsed:Float):Void{
 		super.update(elapsed);
+		FlxG.collide(_player, _walls); //Colisão
 	}
 }
