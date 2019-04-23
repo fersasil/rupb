@@ -1,5 +1,7 @@
 package;
 
+import flixel.FlxSprite;
+import flixel.system.ui.FlxSystemButton;
 import Type.ValueType;
 import haxe.Log;
 import flixel.math.FlxPoint;
@@ -21,7 +23,9 @@ class PlayState extends FlxState{
 	public var _walls:FlxTilemap;
 	var _bk:FlxTilemap;
 	var _bkColor:FlxTilemap;
-	public var _escadas2: Array<FlxPoint>;
+	var _escadas2: Array<FlxPoint>;
+	var _grpBox: FlxTypedGroup<Box>;
+	var sword: Sword;
 
 	public static inline var ESCADA = 20;
 
@@ -48,17 +52,23 @@ class PlayState extends FlxState{
 		gambiArrumaY();
 
 
-
+		_grpBox = new FlxTypedGroup<Box>();
 
 		//https://opengameart.org/content/a-platformer-in-the-forest
 
 		//Colocar o jogador e as outras coisas no lugar certo do mapa
 		_map.loadEntities(placeEntities, "entity");
+		sword = new Sword();
+		//var sprite = new FlxSprite(_player.x +, _player.y);
+		//sprite.makeGraphic(16, 16, FlxColor.BLUE);
 
 		add(_bkColor);
 		add(_bk);
 		add(_walls);
 		add(_player);
+		add(_grpBox);
+		add(sword);
+
 
 		// Create the FlxZoomCamera and pass in the default
 		// camera's x/y/width/height/zoom values, then make
@@ -76,6 +86,20 @@ class PlayState extends FlxState{
 		
 		super.create();
 	}
+
+	function punch():Void {
+        var _mouse:Bool = FlxG.mouse.justPressed ? true : false;
+        var side = _player.movimentSide ? 16 : -16;
+        if(_mouse){
+            sword.attackFront(_player.last, side);
+						if(FlxG.overlap(sword, _grpBox, playerAttackBox))
+            	FlxG.log.add("ATACAOU");
+						else{
+							//sword.kill();
+						}
+							
+        }
+    }
 	
 	//Mover essa função para a classe player o quanto antes
 	function climbing(){
@@ -104,11 +128,10 @@ class PlayState extends FlxState{
 				else if(_mouse){
 					_player.velocity.y = - velocidade;
 				}
-				
-            }
-		else{
-			_player.acceleration.y = 1000;
-		}    
+			}
+			else{
+				_player.acceleration.y = 1000;
+			}    
     }
 
 	function placeEntities(entityName:String, entityData:Xml):Void{
@@ -118,6 +141,13 @@ class PlayState extends FlxState{
 		if(entityName == "player"){
 			_player.x = x;
 			_player.y = y;
+		}
+		else if(entityName == "box"){
+			var box = new Box(x, y);
+			_grpBox.add(box);
+		}
+		else if(entityName == "coin"){
+
 		}
 	}
 
@@ -134,7 +164,19 @@ class PlayState extends FlxState{
 	override public function update(elapsed:Float):Void{
 		super.update(elapsed);
 		FlxG.collide(_player, _walls); //Colisão
+		FlxG.collide(_player, _grpBox);
+		FlxG.collide(_grpBox, _walls);
 		climbing();
+		punch();
+		//sword.kill();
 		//FlxG.overlap(_player, _walls.getTileCoords(92)[0])
+	}
+
+	function playerAttackBox(P: Player, box: Box){
+		//var _mouse = FlxG.mouse.justPressed;
+
+		if(P.alive && P.exists && box.alive && box.exists)
+			box.kill();
+			sword.kill();
 	}
 }

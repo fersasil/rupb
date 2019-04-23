@@ -1,5 +1,6 @@
 package;
 
+import flixel.math.FlxPoint;
 import flixel.FlxObject;
 import flixel.FlxG;
 import flixel.util.FlxColor;
@@ -7,8 +8,9 @@ import flixel.FlxSprite;
 
 class Player extends FlxSprite {
     var velocidade:Float = 200;
-    public var _climbing = false;
+    //public var _climbing = false;
     var _parent:PlayState;
+    public var movimentSide = true; //0 esquerda 1 direta
 
     override public function new(?X:Float = 0, ?Y: Float = 0, Parent:PlayState){
         super(X, Y);
@@ -26,7 +28,9 @@ class Player extends FlxSprite {
         super.update(elapsed);
     }
 
-    function movement(){
+   
+
+    function movement():Void {
         var _cima:Bool = false;
         var _baixo:Bool = false;
         var _esquerda:Bool = false;
@@ -62,10 +66,12 @@ class Player extends FlxSprite {
         }
         if(_direita){
             velocity.x = velocidade;
+            movimentSide = true;
             //facing = FlxObject.RIGHT;
         }
         if(_esquerda){
             velocity.x = -velocidade;
+            movimentSide = false;
             //facing = FlxObject.LEFT;
         }
         //if(_climbing){
