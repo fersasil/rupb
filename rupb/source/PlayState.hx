@@ -25,6 +25,7 @@ class PlayState extends FlxState{
 	var _bkColor:FlxTilemap;
 	var _escadas2: Array<FlxPoint>;
 	var _grpBox: FlxTypedGroup<Box>;
+	var _grpCoin: FlxTypedGroup<Coin>;
 	var sword: Sword;
 
 	public static inline var ESCADA = 20;
@@ -53,6 +54,7 @@ class PlayState extends FlxState{
 
 
 		_grpBox = new FlxTypedGroup<Box>();
+		_grpCoin = new FlxTypedGroup<Coin>();
 
 		//https://opengameart.org/content/a-platformer-in-the-forest
 
@@ -67,6 +69,7 @@ class PlayState extends FlxState{
 		add(_walls);
 		add(_player);
 		add(_grpBox);
+		add(_grpCoin);
 		add(sword);
 
 
@@ -142,12 +145,14 @@ class PlayState extends FlxState{
 			_player.x = x;
 			_player.y = y;
 		}
-		else if(entityName == "box"){
-			var box = new Box(x, y);
-			_grpBox.add(box);
-		}
 		else if(entityName == "coin"){
-
+			var box = new Coin(x, y);
+			_grpCoin.add(box);
+			FlxG.log.add("box");
+		}
+		else if(entityName == "box"){
+			_grpBox.add(new Box(x, y));
+			FlxG.log.add("coin");
 		}
 	}
 
