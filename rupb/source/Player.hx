@@ -7,14 +7,17 @@ import flixel.FlxSprite;
 
 class Player extends FlxSprite {
     var velocidade:Float = 200;
+    public var _climbing = false;
+    var _parent:PlayState;
 
-    override public function new(?X:Float = 0, ?Y: Float = 0){
+    override public function new(?X:Float = 0, ?Y: Float = 0, Parent:PlayState){
         super(X, Y);
         
         makeGraphic(16, 16, FlxColor.BLUE);
         drag.x = drag.y = 1600;
         acceleration.y = 1000; //Cria Gravidade
         //Criar animações
+        this.maxVelocity.set(120, 200);
 
     }
 
@@ -53,7 +56,7 @@ class Player extends FlxSprite {
         }
         if(_baixo){
             //velocity.y = velocidade;
-            velocity.y = 0;
+           // velocity.y = 0;
             //O personagem devera abaixar?
             //facing = FlxObject.DOWN;
         }
@@ -65,9 +68,9 @@ class Player extends FlxSprite {
             velocity.x = -velocidade;
             //facing = FlxObject.LEFT;
         }
-        /*if(_cima && this.isTouching(FlxObject.ESCADA)){
-
-        }*/
+        //if(_climbing){
+        //    y.acceleration = 0;
+        //}
 
         //Só devera haver animação enquanto as teclas serem pressionadas
     /*
