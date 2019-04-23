@@ -70,7 +70,7 @@ import sys.FileSystem;
 
 		#else
 
-		data = '{"name":null,"assets":"aoy4:pathy34:assets%2Fdata%2Fdata-goes-here.txty4:sizezy4:typey4:TEXTy2:idR1y7:preloadtgoR0y28:assets%2Fdata%2Froom-001.oelR2i6931R3R4R5R7R6tgoR0y28:assets%2Fdata%2Froom-002.oelR2i20247R3R4R5R8R6tgoR0y23:assets%2Fdata%2FRUP.oepR2i4296R3R4R5R9R6tgoR0y32:assets%2Fimages%2Fbackground.pngR2i158R3y5:IMAGER5R10R6tgoR0y25:assets%2Fimages%2Fbox.pngR2i685R3R11R5R12R6tgoR0y32:assets%2Fimages%2Fcharacters.pngR2i12754R3R11R5R13R6tgoR0y26:assets%2Fimages%2Fcoin.pngR2i17827R3R11R5R14R6tgoR0y27:assets%2Fimages%2Ftiles.pngR2i19425R3R11R5R15R6tgoR0y36:assets%2Fmusic%2Fmusic-goes-here.txtR2zR3R4R5R16R6tgoR0y36:assets%2Fsounds%2Fsounds-go-here.txtR2zR3R4R5R17R6tgoR2i2114R3y5:MUSICR5y26:flixel%2Fsounds%2Fbeep.mp3y9:pathGroupaR19y26:flixel%2Fsounds%2Fbeep.ogghR6tgoR2i39706R3R18R5y28:flixel%2Fsounds%2Fflixel.mp3R20aR22y28:flixel%2Fsounds%2Fflixel.ogghR6tgoR2i5794R3y5:SOUNDR5R21R20aR19R21hgoR2i33629R3R24R5R23R20aR22R23hgoR2i15744R3y4:FONTy9:classNamey35:__ASSET__flixel_fonts_nokiafc22_ttfR5y30:flixel%2Ffonts%2Fnokiafc22.ttfR6tgoR2i29724R3R25R26y36:__ASSET__flixel_fonts_monsterrat_ttfR5y31:flixel%2Ffonts%2Fmonsterrat.ttfR6tgoR0y33:flixel%2Fimages%2Fui%2Fbutton.pngR2i519R3R11R5R31R6tgoR0y36:flixel%2Fimages%2Flogo%2Fdefault.pngR2i3280R3R11R5R32R6tgh","rootPath":null,"version":2,"libraryArgs":[],"libraryType":null}';
+		data = '{"name":null,"assets":"aoy4:pathy34:assets%2Fdata%2Fdata-goes-here.txty4:sizezy4:typey4:TEXTy2:idR1y7:preloadtgoR0y28:assets%2Fdata%2Froom-001.oelR2i6931R3R4R5R7R6tgoR0y28:assets%2Fdata%2Froom-002.oelR2i20270R3R4R5R8R6tgoR0y28:assets%2Fdata%2Froom-003.oelR2i20270R3R4R5R9R6tgoR0y23:assets%2Fdata%2FRUP.oepR2i4296R3R4R5R10R6tgoR0y32:assets%2Fimages%2Fbackground.pngR2i158R3y5:IMAGER5R11R6tgoR0y25:assets%2Fimages%2Fbox.pngR2i685R3R12R5R13R6tgoR0y32:assets%2Fimages%2Fcharacters.pngR2i12754R3R12R5R14R6tgoR0y26:assets%2Fimages%2Fcoin.pngR2i17827R3R12R5R15R6tgoR0y27:assets%2Fimages%2Fgnome.pngR2i3520R3R12R5R16R6tgoR0y28:assets%2Fimages%2Fgnome1.pngR2i14890R3R12R5R17R6tgoR0y27:assets%2Fimages%2Ftiles.pngR2i19425R3R12R5R18R6tgoR0y36:assets%2Fmusic%2Fmusic-goes-here.txtR2zR3R4R5R19R6tgoR0y36:assets%2Fsounds%2Fsounds-go-here.txtR2zR3R4R5R20R6tgoR2i2114R3y5:MUSICR5y26:flixel%2Fsounds%2Fbeep.mp3y9:pathGroupaR22y26:flixel%2Fsounds%2Fbeep.ogghR6tgoR2i39706R3R21R5y28:flixel%2Fsounds%2Fflixel.mp3R23aR25y28:flixel%2Fsounds%2Fflixel.ogghR6tgoR2i5794R3y5:SOUNDR5R24R23aR22R24hgoR2i33629R3R27R5R26R23aR25R26hgoR2i15744R3y4:FONTy9:classNamey35:__ASSET__flixel_fonts_nokiafc22_ttfR5y30:flixel%2Ffonts%2Fnokiafc22.ttfR6tgoR2i29724R3R28R29y36:__ASSET__flixel_fonts_monsterrat_ttfR5y31:flixel%2Ffonts%2Fmonsterrat.ttfR6tgoR0y33:flixel%2Fimages%2Fui%2Fbutton.pngR2i519R3R12R5R34R6tgoR0y36:flixel%2Fimages%2Flogo%2Fdefault.pngR2i3280R3R12R5R35R6tgh","rootPath":null,"version":2,"libraryArgs":[],"libraryType":null}';
 		manifest = AssetManifest.parse (data, rootPath);
 		library = AssetLibrary.fromManifest (manifest);
 		Assets.registerLibrary ("default", library);
@@ -101,11 +101,14 @@ null
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_data_data_goes_here_txt extends null { }
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_data_room_001_oel extends null { }
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_data_room_002_oel extends null { }
+@:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_data_room_003_oel extends null { }
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_data_rup_oep extends null { }
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_images_background_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_images_box_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_images_characters_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_images_coin_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
+@:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_images_gnome_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
+@:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_images_gnome1_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_images_tiles_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_music_music_goes_here_txt extends null { }
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_sounds_sounds_go_here_txt extends null { }
@@ -125,11 +128,14 @@ null
 @:keep @:file("assets/data/data-goes-here.txt") @:noCompletion #if display private #end class __ASSET__assets_data_data_goes_here_txt extends haxe.io.Bytes {}
 @:keep @:file("assets/data/room-001.oel") @:noCompletion #if display private #end class __ASSET__assets_data_room_001_oel extends haxe.io.Bytes {}
 @:keep @:file("assets/data/room-002.oel") @:noCompletion #if display private #end class __ASSET__assets_data_room_002_oel extends haxe.io.Bytes {}
+@:keep @:file("assets/data/room-003.oel") @:noCompletion #if display private #end class __ASSET__assets_data_room_003_oel extends haxe.io.Bytes {}
 @:keep @:file("assets/data/RUP.oep") @:noCompletion #if display private #end class __ASSET__assets_data_rup_oep extends haxe.io.Bytes {}
 @:keep @:image("assets/images/background.png") @:noCompletion #if display private #end class __ASSET__assets_images_background_png extends lime.graphics.Image {}
 @:keep @:image("assets/images/box.png") @:noCompletion #if display private #end class __ASSET__assets_images_box_png extends lime.graphics.Image {}
 @:keep @:image("assets/images/characters.png") @:noCompletion #if display private #end class __ASSET__assets_images_characters_png extends lime.graphics.Image {}
 @:keep @:image("assets/images/coin.png") @:noCompletion #if display private #end class __ASSET__assets_images_coin_png extends lime.graphics.Image {}
+@:keep @:image("assets/images/gnome.png") @:noCompletion #if display private #end class __ASSET__assets_images_gnome_png extends lime.graphics.Image {}
+@:keep @:image("assets/images/gnome1.png") @:noCompletion #if display private #end class __ASSET__assets_images_gnome1_png extends lime.graphics.Image {}
 @:keep @:image("assets/images/tiles.png") @:noCompletion #if display private #end class __ASSET__assets_images_tiles_png extends lime.graphics.Image {}
 @:keep @:file("assets/music/music-goes-here.txt") @:noCompletion #if display private #end class __ASSET__assets_music_music_goes_here_txt extends haxe.io.Bytes {}
 @:keep @:file("assets/sounds/sounds-go-here.txt") @:noCompletion #if display private #end class __ASSET__assets_sounds_sounds_go_here_txt extends haxe.io.Bytes {}

@@ -15,11 +15,33 @@ class Player extends FlxSprite {
     override public function new(?X:Float = 0, ?Y: Float = 0, Parent:PlayState){
         super(X, Y);
         
-        makeGraphic(16, 16, FlxColor.BLUE);
+        //makeGraphic(16, 16, FlxColor.BLUE);
+        loadGraphic(AssetPaths.gnome__png, true, 20, 24);
+        
+        //Faz com que não se precise de uma imagem diferente para a 
+        //esquerda e para a direita
+        setFacingFlip(FlxObject.RIGHT, false, false);
+        setFacingFlip(FlxObject.LEFT, true, false);
+
+        //Cria as animações
+        animation.add("WALK", [1, 2, 3, 4], 10, false);
+        animation.add("JUMP", [5, 6], 6, false);
+        animation.add("JUMP-FALL", [7, 8], 6, false);
+        
+        animation.add("SLASH", [12, 11, 12, 13], 10, false);
+        animation.add("CLIMB", [19, 20, 21, 22], 6, false);
+        
+        
+        
         drag.x = drag.y = 1600;
         acceleration.y = 1000; //Cria Gravidade
         //Criar animações
         this.maxVelocity.set(120, 200);
+        setGraphicSize(16, 22);
+        //updateHitbox(16, 16);
+        //setGraphicSize(16, 16);
+        //scale.set(0.5, 0.5);
+        updateHitbox();
 
     }
 
@@ -56,41 +78,35 @@ class Player extends FlxSprite {
 
         if(_cima && this.isTouching(FlxObject.FLOOR)){
             velocity.y = - velocidade;
-            //facing = FlxObject.UP;
+            facing = FlxObject.UP;
         }
         if(_baixo){
             //velocity.y = velocidade;
            // velocity.y = 0;
             //O personagem devera abaixar?
-            //facing = FlxObject.DOWN;
+            facing = FlxObject.DOWN;
         }
         if(_direita){
             velocity.x = velocidade;
             movimentSide = true;
-            //facing = FlxObject.RIGHT;
+            facing = FlxObject.RIGHT;
         }
         if(_esquerda){
             velocity.x = -velocidade;
             movimentSide = false;
-            //facing = FlxObject.LEFT;
+            facing = FlxObject.LEFT;
         }
-        //if(_climbing){
-        //    y.acceleration = 0;
-        //}
-
         //Só devera haver animação enquanto as teclas serem pressionadas
-    /*
         if ((velocity.x != 0 || velocity.y != 0) && !isTouching(facing)){
             switch (facing){
             case FlxObject.LEFT, FlxObject.RIGHT:
-                animation.play("lr");
+                animation.play("WALK");
             case FlxObject.UP:
-                animation.play("u");
+                animation.play("JUMP");
             case FlxObject.DOWN:
-                animation.play("d");
+                //animation.play("d");
             }
         }
-     */
     }
 
 }

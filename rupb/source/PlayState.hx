@@ -1,5 +1,6 @@
 package;
 
+import js.html.Range;
 import flixel.FlxSprite;
 import flixel.system.ui.FlxSystemButton;
 import Type.ValueType;
@@ -86,6 +87,8 @@ class PlayState extends FlxState{
 		// camera.target = _player;
 		// camera.setBounds(200, 200);
 		FlxG.camera.follow(_player);
+
+		FlxG.log.add(_escadas2);
 		
 		super.create();
 	}
@@ -94,6 +97,7 @@ class PlayState extends FlxState{
         var _mouse:Bool = FlxG.mouse.justPressed ? true : false;
         var side = _player.movimentSide ? 16 : -16;
         if(_mouse){
+			_player.animation.play("SLASH");
             sword.attackFront(_player.last, side);
 						if(FlxG.overlap(sword, _grpBox, playerAttackBox))
             	FlxG.log.add("ATACAOU");
@@ -106,6 +110,8 @@ class PlayState extends FlxState{
 	
 	//Mover essa função para a classe player o quanto antes
 	function climbing(){
+		Log.trace(_player.last);
+		//FlxG.log.add(_player.last);
 		var verificador = false;
 
         if(_player.x == _escadas2[0].x && _player.y - _escadas2[0].y >= 0) //Verifica se o jogador esta na mesma posição da primeira escada
@@ -118,6 +124,7 @@ class PlayState extends FlxState{
 		
 		if(verificador){ //Se uma das teclas pressionadas o jogador sobe
 			_player.acceleration.y = 0;
+				_player.animation.play("CLIMB");
 				var _cima = FlxG.keys.anyPressed([UP, W]);
         		var _baixo = FlxG.keys.anyPressed([DOWN, S]);
 				var _mouse = FlxG.mouse.justPressed;
@@ -148,11 +155,9 @@ class PlayState extends FlxState{
 		else if(entityName == "coin"){
 			var box = new Coin(x, y);
 			_grpCoin.add(box);
-			FlxG.log.add("box");
 		}
 		else if(entityName == "box"){
 			_grpBox.add(new Box(x, y));
-			FlxG.log.add("coin");
 		}
 	}
 
@@ -174,13 +179,21 @@ class PlayState extends FlxState{
 		climbing();
 		punch();
 		//sword.kill();
-		//FlxG.overlap(_player, _walls.getTileCoords(92)[0])
+		FlxG.overlap(_player, _grpCoin, getCoin);
+
+		trace(_player.last);
 	}
 
-	function playerAttackBox(P: Player, box: Box){
+	function getCoin(P: Player, C: Coin): Void {
+		if(P.alive && P.exists && C.alive && C.exists){
+			C.kill();
+		}
+	}
+
+	function playerAttackBox(S: Sword, box: Box): Void{
 		//var _mouse = FlxG.mouse.justPressed;
 
-		if(P.alive && P.exists && box.alive && box.exists)
+		if(S.alive && S.exists && box.alive && box.exists)
 			box.kill();
 			sword.kill();
 	}
