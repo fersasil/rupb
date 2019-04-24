@@ -1,6 +1,6 @@
 package;
 
-import js.html.Range;
+import flixel.addons.editors.tiled.TiledTilePropertySet;
 import flixel.FlxSprite;
 import flixel.system.ui.FlxSystemButton;
 import Type.ValueType;
@@ -21,13 +21,17 @@ import flixel.addons.editors.ogmo.FlxOgmoLoader;
 class PlayState extends FlxState{
 	var _player:Player;
 	var _map:FlxOgmoLoader;
-	public var _walls:FlxTilemap;
+	var _walls:FlxTilemap;
 	var _bk:FlxTilemap;
 	var _bkColor:FlxTilemap;
 	var _escadas2: Array<FlxPoint>;
 	var _grpBox: FlxTypedGroup<Box>;
 	var _grpCoin: FlxTypedGroup<Coin>;
+	var _grpWater: FlxTypedGroup<Water>;
 	var sword: Sword;
+	var _hud:HUD;
+	var _money:Int = 0;
+	var _health:Int = 3;
 
 	public static inline var ESCADA = 20;
 
@@ -51,17 +55,21 @@ class PlayState extends FlxState{
 		//_escadas = _walls.getTileCoords(92);
 		//_escadas1 = _walls.getTileCoords(109);
 		_escadas2 = _walls.getTileCoords(109, false);
+		
 		gambiArrumaY();
 
 
 		_grpBox = new FlxTypedGroup<Box>();
 		_grpCoin = new FlxTypedGroup<Coin>();
-
+		_grpWater = new FlxTypedGroup<Water>();
+		
 		//https://opengameart.org/content/a-platformer-in-the-forest
 
 		//Colocar o jogador e as outras coisas no lugar certo do mapa
 		_map.loadEntities(placeEntities, "entity");
 		sword = new Sword();
+
+		_hud = new HUD();
 		//var sprite = new FlxSprite(_player.x +, _player.y);
 		//sprite.makeGraphic(16, 16, FlxColor.BLUE);
 
@@ -72,6 +80,8 @@ class PlayState extends FlxState{
 		add(_grpBox);
 		add(_grpCoin);
 		add(sword);
+		add(_hud);
+		add(_grpWater);
 
 
 		// Create the FlxZoomCamera and pass in the default
@@ -88,7 +98,7 @@ class PlayState extends FlxState{
 		// camera.setBounds(200, 200);
 		FlxG.camera.follow(_player);
 
-		FlxG.log.add(_escadas2);
+		//FlxG.log.add(_escadas2);
 		
 		super.create();
 	}
@@ -110,13 +120,13 @@ class PlayState extends FlxState{
 	
 	//Mover essa função para a classe player o quanto antes
 	function climbing(){
-		Log.trace(_player.last);
+		//Log.trace(_player.last);
 		//FlxG.log.add(_player.last);
 		var verificador = false;
 
         if(_player.x == _escadas2[0].x && _player.y - _escadas2[0].y >= 0) //Verifica se o jogador esta na mesma posição da primeira escada
 			verificador = true;
-		else if(_player.x == _escadas2[1].x && _player.y - _escadas2[1].y >= 0) //Verifica se o jogador esta na escada dois
+		else if(_player.x == _escadas2[1].x && _player.y - _escadas2[1].y >= 0 && _player.y <= 330) //Verifica se o jogador esta na escada dois
 			verificador = true;
 
 		else if(_player.x == _escadas2[2].x && _player.y - _escadas2[2].y >= 0 && _player.y <= 224) //verifica se o jogador esta na escada 3 com a altura certa
@@ -159,6 +169,9 @@ class PlayState extends FlxState{
 		else if(entityName == "box"){
 			_grpBox.add(new Box(x, y));
 		}
+		else if(entityName == "water"){
+			_grpWater.add(new Water(x, y));
+		}
 	}
 
 	//O y do personagem decresce no mapa, enquanto o y do mapa aumenta
@@ -180,13 +193,24 @@ class PlayState extends FlxState{
 		punch();
 		//sword.kill();
 		FlxG.overlap(_player, _grpCoin, getCoin);
+		FlxG.overlap(_player, _grpWater, waterLetter);
 
-		trace(_player.last);
+		if(!_player.alive)
+			FlxG.switchState(new MenuState());
+		//trace(_player.last);
+	}
+
+	function waterLetter(P: Player, W: Water): Void {
+		if(P.alive && P.exists){
+			P.kill();
+		}
 	}
 
 	function getCoin(P: Player, C: Coin): Void {
 		if(P.alive && P.exists && C.alive && C.exists){
 			C.kill();
+			_money++;
+			_hud.updateHUD(_health, _money);
 		}
 	}
 

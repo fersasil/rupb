@@ -87,12 +87,12 @@ class Player extends FlxSprite {
             facing = FlxObject.DOWN;
         }
         if(_direita){
-            velocity.x = velocidade;
+            velocity.x = velocidade - 30;
             movimentSide = true;
             facing = FlxObject.RIGHT;
         }
         if(_esquerda){
-            velocity.x = -velocidade;
+            velocity.x = -velocidade + 30;
             movimentSide = false;
             facing = FlxObject.LEFT;
         }
