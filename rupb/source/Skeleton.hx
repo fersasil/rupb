@@ -13,7 +13,7 @@ class Skeleton extends FlxSprite{
     public var direction: Bool = false;
 
 
-    public function new(X:Float = 0, Y:Float = 0) {
+    public function new(X:Float = 0, Y:Float = 0, D: Bool = true) {
         super(X, Y);
         //makeGraphic(16, 16, FlxColor.BLUE);
         // loadGraphic(AssetPaths.skeletonSprite__png, true, 16, 16);
@@ -28,7 +28,9 @@ class Skeleton extends FlxSprite{
 
         animation.add("WALK", [1, 2, 3], 10, false);
 
-        velocity.x = 20;
+        //Direção em que os esqueletos andam ao nascer
+        if(D) velocity.x = 20;
+        else velocity.x = -20;
         direction = true; //Direita
 
         //drag.x = drag.y = 1600;

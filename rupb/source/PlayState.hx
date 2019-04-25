@@ -19,7 +19,7 @@ import flixel.FlxG;
 
 import flixel.addons.editors.ogmo.FlxOgmoLoader;
 
-
+//ARRUMAR SPRITE DA CAVEIRA
 class PlayState extends FlxState{
 	var _player:Player;
 	var _map:FlxOgmoLoader;
@@ -116,13 +116,12 @@ class PlayState extends FlxState{
         var side = _player.movimentSide ? 16 : -16;
         if(_mouse){
 			_player.animation.play("SLASH");
+			//O jogador é mais alto que o bloco, sempre quebrando o bloco de cima primeiro
+			//Diminuir a diferença do Y
             sword.attackFront(_player.last, side);
-						if(FlxG.overlap(sword, _grpBox, playerAttackBox))
-            	FlxG.log.add("ATACAOU");
-						else{
-							//sword.kill();
-						}
-							
+			FlxG.overlap(sword, _grpBox, playerAttackBox);
+			//Se matar, colocar um esqueleto morto no lugar. 
+			FlxG.overlap(sword, _grpSkeleton, playerAttackBox); 
         }
     }
 	
@@ -181,7 +180,7 @@ class PlayState extends FlxState{
 			_grpWater.add(new Water(x, y));
 		}
 		else if(entityName == "skeleton"){
-			_grpSkeleton.add(new Skeleton(x, y));
+			_grpSkeleton.add(new Skeleton(x, y, FlxG.random.bool()));
 		}
 		else if(entityName == "rock"){
 			_grpRock.add(new Rock(x, y + 7)); //Pedra se ajustar ao cenário
@@ -206,6 +205,7 @@ class PlayState extends FlxState{
 		FlxG.collide(_player, _grpRock);
 		FlxG.collide(_grpSkeleton, _walls);
 		FlxG.collide(_grpSkeleton, _grpBox);
+		FlxG.collide(_grpSkeleton, _grpRock);
 		
 		//FlxG.collide(_grpSkeleton, _grpSkeleton);
 		climbing();
@@ -260,11 +260,11 @@ class PlayState extends FlxState{
 		}
 	}
 
-	function playerAttackBox(S: Sword, box: Box): Void{
+	function playerAttackBox(S: Sword, box: FlxObject): Void{
 		//var _mouse = FlxG.mouse.justPressed;
 
-		if(S.alive && S.exists && box.alive && box.exists)
+		if(S.alive && S.exists && box.alive && box.exists)//
 			box.kill();
-			sword.kill();
+		sword.kill();
 	}
 }
