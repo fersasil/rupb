@@ -1,5 +1,6 @@
 package;
 
+import flixel.util.FlxTimer;
 import flixel.math.FlxPoint;
 import flixel.FlxObject;
 import flixel.FlxG;
@@ -10,10 +11,15 @@ class Player extends FlxSprite {
     var velocidade:Float = 200;
     //public var _climbing = false;
     var _parent:PlayState;
+    public var timer: FlxTimer;
     public var movimentSide = true; //0 esquerda 1 direta
 
     override public function new(?X:Float = 0, ?Y: Float = 0, Parent:PlayState){
         super(X, Y);
+
+        timer = new FlxTimer();
+
+        health = 3;
         
         //makeGraphic(16, 16, FlxColor.BLUE);
         loadGraphic(AssetPaths.gnome__png, true, 20, 24);

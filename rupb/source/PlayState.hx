@@ -1,5 +1,6 @@
 package;
 
+import flixel.util.FlxTimer;
 import flixel.math.FlxVelocity;
 import flixel.addons.editors.tiled.TiledTilePropertySet;
 import flixel.FlxSprite;
@@ -198,7 +199,6 @@ class PlayState extends FlxState{
 	}
 
 	override public function update(elapsed:Float):Void{
-		tou();//tem que ser antes do update
 		super.update(elapsed);
 		FlxG.collide(_player, _walls); //Colisão
 		FlxG.collide(_player, _grpBox);
@@ -206,12 +206,15 @@ class PlayState extends FlxState{
 		FlxG.collide(_player, _grpRock);
 		FlxG.collide(_grpSkeleton, _walls);
 		FlxG.collide(_grpSkeleton, _grpBox);
+		
 		//FlxG.collide(_grpSkeleton, _grpSkeleton);
 		climbing();
 		punch();
 		//sword.kill();
 		FlxG.overlap(_player, _grpCoin, getCoin);
 		FlxG.overlap(_player, _grpWater, waterLetter);
+		FlxG.overlap(_player, _grpSkeleton, playerHurts);
+		
 		
 		
 		//FlxG.overlap(_grpSkeleton, _grpBox, changeDirection);
@@ -222,38 +225,29 @@ class PlayState extends FlxState{
 			FlxG.switchState(new MenuState());
 		//trace(_player.last);
 	}
-
-	function tou(){
-		/*for (sk in _grpSkeleton){
-			if(sk.isTouching(FlxObject.RIGHT)){//!sk.justTouched(FlxObject.RIGHT)
-				sk.velocity.x = -20;
-				sk.x -= 0.1;
-			}
-			else if((sk.isTouching(FlxObject.LEFT))){
-				sk.velocity.x = 20;
-				sk.x += 0.1;
-			}
-		}*/
+	/**
+	Apenas um hurt faria com que o jogador morresse instaneamente
+	O timer faz com que o jogador leve dano apenas após 0.3 segundos
+	O hud é atualizado, porem. Caso a vida chegue a 0, o timer não é
+	acionado.
+	 */
+	function playerHurts(P: Player, S: Skeleton){
+		if(P.alive && P.exists  && S.alive && S.exists){
 			
-	}
-
-	/*function changeDirection(S: Skeleton, B: FlxSprite){
-		//trace(S.velocity.x);
-		//FlxG.log.add(FlxG.elapsed);
-		if(S.alive && S.exists && B.alive && B.exists){
-			if(S.velocity.x > 0 && S.direction){ //Colidindo com a direita
-				S.velocity.x = -20;
-				S.x -= 0.1; //Evita que haja overlap uma segunda vez.
-				S.direction = false;
-			}
-			else if(S.velocity.x < 0 && !S.direction){ //Colidindo com a direita
-				S.velocity.x = 20;
+			//P.solid = true;
+			var life = Std.int(_player.health - 1);
+			_hud.updateHUD(life, _money);
+			//Colocar sprite do jogador brilhando aqui, ou recebendo dano
+			if(life == 0) P.hurt(1);
+			else{
+				P.timer.start(0.3, function(Timer:FlxTimer){
+				P.hurt(1);
+			});
 			}
 		}
-	}*/
-
+	}
 	function waterLetter(P: Player, W: Water): Void {
-		if(P.alive && P.exists){
+		if(P.alive && P.exists  && W.alive && W.exists){
 			P.kill();
 		}
 	}
@@ -262,7 +256,7 @@ class PlayState extends FlxState{
 		if(P.alive && P.exists && C.alive && C.exists){
 			C.kill();
 			_money++;
-			_hud.updateHUD(_health, _money);
+			_hud.updateHUD(Std.int(_player.health), _money);
 		}
 	}
 

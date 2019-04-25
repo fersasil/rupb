@@ -47,7 +47,6 @@ class Skeleton extends FlxSprite{
         }
 
         animation.play("WALK");
-        
     }
 
     function verifyColision() {
@@ -64,10 +63,11 @@ class Skeleton extends FlxSprite{
             facing = FlxObject.RIGHT;
             animation.play("WALK");
         }
-        else if(isTouching(Water) && velocity.x > 0){
-            this.velocity.x = -20;
-            this.x -= 0.1;
-        }
+    }
+
+    function onOverlap(a: Skeleton, b:Water):Void{
+        a.kill();
+        //a.angularVelocity = 100;
     }
 
     /*function moviment() {
