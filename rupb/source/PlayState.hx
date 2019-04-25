@@ -1,5 +1,6 @@
 package;
 
+import flixel.math.FlxVelocity;
 import flixel.addons.editors.tiled.TiledTilePropertySet;
 import flixel.FlxSprite;
 import flixel.system.ui.FlxSystemButton;
@@ -28,6 +29,8 @@ class PlayState extends FlxState{
 	var _grpBox: FlxTypedGroup<Box>;
 	var _grpCoin: FlxTypedGroup<Coin>;
 	var _grpWater: FlxTypedGroup<Water>;
+	var _grpSkeleton: FlxTypedGroup<Skeleton>;
+	var _grpRock: FlxTypedGroup<Rock>;
 	var sword: Sword;
 	var _hud:HUD;
 	var _money:Int = 0;
@@ -62,6 +65,8 @@ class PlayState extends FlxState{
 		_grpBox = new FlxTypedGroup<Box>();
 		_grpCoin = new FlxTypedGroup<Coin>();
 		_grpWater = new FlxTypedGroup<Water>();
+		_grpSkeleton = new FlxTypedGroup<Skeleton>();
+		_grpRock = new FlxTypedGroup<Rock>();
 		
 		//https://opengameart.org/content/a-platformer-in-the-forest
 
@@ -82,6 +87,8 @@ class PlayState extends FlxState{
 		add(sword);
 		add(_hud);
 		add(_grpWater);
+		add(_grpSkeleton);
+		add(_grpRock);
 
 
 		// Create the FlxZoomCamera and pass in the default
@@ -172,6 +179,12 @@ class PlayState extends FlxState{
 		else if(entityName == "water"){
 			_grpWater.add(new Water(x, y));
 		}
+		else if(entityName == "skeleton"){
+			_grpSkeleton.add(new Skeleton(x, y));
+		}
+		else if(entityName == "rock"){
+			_grpRock.add(new Rock(x, y + 7)); //Pedra se ajustar ao cenário
+		}
 	}
 
 	//O y do personagem decresce no mapa, enquanto o y do mapa aumenta
@@ -185,20 +198,59 @@ class PlayState extends FlxState{
 	}
 
 	override public function update(elapsed:Float):Void{
+		tou();//tem que ser antes do update
 		super.update(elapsed);
 		FlxG.collide(_player, _walls); //Colisão
 		FlxG.collide(_player, _grpBox);
 		FlxG.collide(_grpBox, _walls);
+		FlxG.collide(_player, _grpRock);
+		FlxG.collide(_grpSkeleton, _walls);
+		FlxG.collide(_grpSkeleton, _grpBox);
+		//FlxG.collide(_grpSkeleton, _grpSkeleton);
 		climbing();
 		punch();
 		//sword.kill();
 		FlxG.overlap(_player, _grpCoin, getCoin);
 		FlxG.overlap(_player, _grpWater, waterLetter);
+		
+		
+		//FlxG.overlap(_grpSkeleton, _grpBox, changeDirection);
+		//FlxG.log.add(a);
+		//FlxG.overlap(_grpSkeleton, _grpSkeleton, changeDirection);
 
 		if(!_player.alive)
 			FlxG.switchState(new MenuState());
 		//trace(_player.last);
 	}
+
+	function tou(){
+		/*for (sk in _grpSkeleton){
+			if(sk.isTouching(FlxObject.RIGHT)){//!sk.justTouched(FlxObject.RIGHT)
+				sk.velocity.x = -20;
+				sk.x -= 0.1;
+			}
+			else if((sk.isTouching(FlxObject.LEFT))){
+				sk.velocity.x = 20;
+				sk.x += 0.1;
+			}
+		}*/
+			
+	}
+
+	/*function changeDirection(S: Skeleton, B: FlxSprite){
+		//trace(S.velocity.x);
+		//FlxG.log.add(FlxG.elapsed);
+		if(S.alive && S.exists && B.alive && B.exists){
+			if(S.velocity.x > 0 && S.direction){ //Colidindo com a direita
+				S.velocity.x = -20;
+				S.x -= 0.1; //Evita que haja overlap uma segunda vez.
+				S.direction = false;
+			}
+			else if(S.velocity.x < 0 && !S.direction){ //Colidindo com a direita
+				S.velocity.x = 20;
+			}
+		}
+	}*/
 
 	function waterLetter(P: Player, W: Water): Void {
 		if(P.alive && P.exists){
