@@ -19,8 +19,7 @@ import flixel.addons.editors.ogmo.FlxOgmoLoader;
 //ADICIONAR CORAÇÃO no HUD
 //ADICIONAR SPRITE DE MORTE
 //ADICIONAR SPRITE DE DANO
-//ADICIONAR FIM DA FASE
-//ADICIONAR VOCE MORREU MENU
+//ADICIONAR FIM DA FASE *****
 //ADICIONAR CAVEIRA RAPIDA
 //ARRUMAR IMPLEMENTAÇÃO DA ESCADA
 //IMPLEMENTAR CORREIO
@@ -40,6 +39,7 @@ class PlayState extends FlxState{
 	var _hud:HUD;
 	var _money:Int = 0;
 	var _health:Int = 3;
+	var _deadScreen: DeadScreen;
 	var _zoomCam:FlxZoomCamera;
 	var flashAux: Bool = true;
 
@@ -71,6 +71,7 @@ class PlayState extends FlxState{
 		_grpRock = new FlxTypedGroup<Rock>();
 		sword = new Sword();
 		_hud = new HUD();
+		_deadScreen = new DeadScreen();
 		
 		//https://opengameart.org/content/a-platformer-in-the-forest
 
@@ -84,13 +85,14 @@ class PlayState extends FlxState{
 		add(_bk);
 		add(_walls);
 		add(_player);
+		add(_hud);
 		add(_grpBox);
 		add(_grpCoin);
 		add(sword);
-		add(_hud);
 		add(_grpWater);
 		add(_grpSkeleton);
 		add(_grpRock);
+		add(_deadScreen);
 
 		//Cria uma camera para zoom
 		var cam:FlxCamera = FlxG.camera;
@@ -114,7 +116,6 @@ class PlayState extends FlxState{
 			//O jogador é mais alto que o bloco, sempre quebrando o bloco de cima primeiro
 			//Diminuir a diferença do Y
             sword.attackFront(_player.last, side);
-			FlxG.log.add(sword.last);
 			FlxG.overlap(sword, _grpBox, playerAttackBox);
 			//Se matar, colocar um esqueleto morto no lugar. 
 			FlxG.overlap(sword, _grpSkeleton, playerAttackBox); 
@@ -225,7 +226,7 @@ class PlayState extends FlxState{
 		allOverlaps();
 
 		if(!_player.alive) //Colocar mensagem que você morreu, etc...
-			FlxG.switchState(new MenuState());
+			_deadScreen.newDeath(_money);
 	}
 	/**
 	Apenas um hurt faria com que o jogador morresse instaneamente
