@@ -19,12 +19,12 @@ import flixel.addons.editors.ogmo.FlxOgmoLoader;
 //ADICIONAR CORAÇÃO no HUD
 //ADICIONAR SPRITE DE MORTE
 //ADICIONAR SPRITE DE DANO
-//ADICIONAR FIM DA FASE *****
 //ADICIONAR CAVEIRA RAPIDA
 //ARRUMAR IMPLEMENTAÇÃO DA ESCADA
 //IMPLEMENTAR CORREIO
 class PlayState extends FlxState{
 	var _player:Player;
+	var _boardNext:BoardNext;
 	var _map:FlxOgmoLoader;
 	var _walls:FlxTilemap;
 	var _bk:FlxTilemap;
@@ -39,6 +39,7 @@ class PlayState extends FlxState{
 	var _hud:HUD;
 	var _money:Int = 0;
 	var _health:Int = 3;
+	var _nextLevel: NextLevel;
 	var _deadScreen: DeadScreen;
 	var _zoomCam:FlxZoomCamera;
 	var flashAux: Bool = true;
@@ -46,9 +47,21 @@ class PlayState extends FlxState{
 	public static inline var ESCADA = 20;
 
 	override public function create():Void { 
+		_grpBox = new FlxTypedGroup<Box>();
+		_grpCoin = new FlxTypedGroup<Coin>();
+		_grpWater = new FlxTypedGroup<Water>();
+		_grpSkeleton = new FlxTypedGroup<Skeleton>();
+		_grpRock = new FlxTypedGroup<Rock>();
+		_hud = new HUD();
+		_deadScreen = new DeadScreen();
 		_player = new Player(0, 0, this);
-
 		_map = new FlxOgmoLoader(AssetPaths.room_002__oel);
+		_boardNext = new BoardNext();
+		_nextLevel = new NextLevel();
+		sword = new Sword();
+		
+		
+		
 		//Carrega os layers do mapa
 		_walls = _map.loadTilemap(AssetPaths.tiles__png, 16, 16, "walls");
 		_bk = _map.loadTilemap(AssetPaths.tiles__png, 16, 16, "bk");
@@ -64,14 +77,7 @@ class PlayState extends FlxState{
 		gambiArrumaY();
 
 
-		_grpBox = new FlxTypedGroup<Box>();
-		_grpCoin = new FlxTypedGroup<Coin>();
-		_grpWater = new FlxTypedGroup<Water>();
-		_grpSkeleton = new FlxTypedGroup<Skeleton>();
-		_grpRock = new FlxTypedGroup<Rock>();
-		sword = new Sword();
-		_hud = new HUD();
-		_deadScreen = new DeadScreen();
+		
 		
 		//https://opengameart.org/content/a-platformer-in-the-forest
 
@@ -93,6 +99,8 @@ class PlayState extends FlxState{
 		add(_grpSkeleton);
 		add(_grpRock);
 		add(_deadScreen);
+		add(_boardNext);
+		add(_nextLevel);
 
 		//Cria uma camera para zoom
 		var cam:FlxCamera = FlxG.camera;
@@ -182,6 +190,10 @@ class PlayState extends FlxState{
 		else if(entityName == "rock"){
 			_grpRock.add(new Rock(x, y + 7)); //Pedra se ajustar ao cenário
 		}
+		else if(entityName == "nextLevel"){
+			_boardNext.x = x;
+			_boardNext.y = y + 4;
+		}
 	}
 
 	//O y do personagem decresce no mapa, enquanto o y do mapa aumenta
@@ -202,6 +214,8 @@ class PlayState extends FlxState{
 		FlxG.collide(_grpSkeleton, _walls);
 		FlxG.collide(_grpSkeleton, _grpBox);
 		FlxG.collide(_grpSkeleton, _grpRock);
+		//FlxG.collide(_player, _boardNext);
+		FlxG.collide(_grpSkeleton, _boardNext);
 	}
 
 	public function zoom() {
@@ -213,6 +227,16 @@ class PlayState extends FlxState{
 		FlxG.overlap(_player, _grpCoin, getCoin);
 		FlxG.overlap(_player, _grpWater, waterLetter);
 		FlxG.overlap(_player, _grpSkeleton, playerHurts);
+		FlxG.overlap(_player, _boardNext, goNextLevel);
+	}
+
+	function  goNextLevel(P: Player, B: BoardNext) {
+		if(P.exists && P.alive){
+			P.exists = false;
+			_nextLevel.wins(_money);
+			//EFEITOS, ETC.
+			//MATAR JOGADOR PROVISORIAMENTE
+		}
 	}
 
 	override public function update(elapsed:Float):Void{
