@@ -1,7 +1,5 @@
 package;
 
-import openfl.display.Sprite;
-import flixel.util.FlxColor;
 import flixel.FlxSprite;
 
 class Box extends FlxSprite{

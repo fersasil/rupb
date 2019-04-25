@@ -14,16 +14,7 @@ class Sword extends FlxSprite {
         kill();
     }
     public function attackFront(Location:FlxPoint, side:Int) {
-        
-        super.reset(Location.x + side, Location.y + 8); //Jogador 8 mais alto que 16...
-        //velocity.x = Location.x + 10;
-        //velocity.y = Location.y;
-        //_point.set(x, y);
-        
-        FlxG.log.add("OOO");
-        
-        //live = true;
-        //exists = true;
+        super.reset(Location.x + side, Location.y -1); //Jogador 8 mais alto que 16...
 		solid = true;
         
     }

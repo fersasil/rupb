@@ -2,8 +2,6 @@ package;
 
 import flixel.FlxState;
 import flixel.text.FlxText;
-import flixel.math.FlxVelocity;
-import flixel.FlxObject;
 
 class CreditState extends FlxState{
     var _programmer: FlxText;

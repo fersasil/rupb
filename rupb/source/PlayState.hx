@@ -1,25 +1,29 @@
 package;
 
-import flixel.util.FlxTimer;
-import flixel.math.FlxVelocity;
-import flixel.addons.editors.tiled.TiledTilePropertySet;
-import flixel.FlxSprite;
-import flixel.system.ui.FlxSystemButton;
-import Type.ValueType;
-import haxe.Log;
-import flixel.math.FlxPoint;
-import flixel.FlxCamera;
-import flixel.util.FlxColor;
-import openfl.events.EventDispatcher;
-import flixel.FlxState;
-import flixel.group.FlxGroup;
-import flixel.tile.FlxTilemap;
-import flixel.FlxObject;
 import flixel.FlxG;
+import flixel.FlxObject;
+import flixel.math.FlxPoint;
+import flixel.FlxState;
+import flixel.tile.FlxTilemap;
+import flixel.util.FlxTimer;
+import flixel.group.FlxGroup;
+import flixel.FlxCamera;
+import flixel.addons.display.FlxZoomCamera;
 
 import flixel.addons.editors.ogmo.FlxOgmoLoader;
 
 //ARRUMAR SPRITE DA CAVEIRA
+//ARRUMAR PULO NA BOX
+//ARRUMAR espadada para baixo
+//ARRUMAR fundo com bug
+//ADICIONAR CORAÇÃO no HUD
+//ADICIONAR SPRITE DE MORTE
+//ADICIONAR SPRITE DE DANO
+//ADICIONAR FIM DA FASE
+//ADICIONAR VOCE MORREU MENU
+//ADICIONAR CAVEIRA RAPIDA
+//ARRUMAR IMPLEMENTAÇÃO DA ESCADA
+//IMPLEMENTAR CORREIO
 class PlayState extends FlxState{
 	var _player:Player;
 	var _map:FlxOgmoLoader;
@@ -36,6 +40,8 @@ class PlayState extends FlxState{
 	var _hud:HUD;
 	var _money:Int = 0;
 	var _health:Int = 3;
+	var _zoomCam:FlxZoomCamera;
+	var flashAux: Bool = true;
 
 	public static inline var ESCADA = 20;
 
@@ -49,17 +55,12 @@ class PlayState extends FlxState{
 		_bkColor = _map.loadTilemap(AssetPaths.tiles__png, 16, 16, "color");
 		
 		_walls.follow();
-		//_walls.setTileProperties(1, FlxObject.NONE); //Não colidir -> aqui é o chão
-		//_walls.setTileProperties(2, FlxObject.ANY); //Colidir -> parede de todas as direções
 
 		_walls.setTileProperties(92, FlxObject.NONE); //Não colidir com escada
 		_walls.setTileProperties(109, FlxObject.NONE); //Escada inicio
 		_walls.setTileProperties(75, FlxObject.NONE); //Escada fim
-		//_walls.setTileProperties(92, ESCADA);
-		//_escadas = _walls.getTileCoords(92);
-		//_escadas1 = _walls.getTileCoords(109);
-		_escadas2 = _walls.getTileCoords(109, false);
-		
+
+		_escadas2 = _walls.getTileCoords(109, false); //Isso é uma gambiarra, precisa ser arrumado
 		gambiArrumaY();
 
 
@@ -68,14 +69,14 @@ class PlayState extends FlxState{
 		_grpWater = new FlxTypedGroup<Water>();
 		_grpSkeleton = new FlxTypedGroup<Skeleton>();
 		_grpRock = new FlxTypedGroup<Rock>();
+		sword = new Sword();
+		_hud = new HUD();
 		
 		//https://opengameart.org/content/a-platformer-in-the-forest
 
 		//Colocar o jogador e as outras coisas no lugar certo do mapa
 		_map.loadEntities(placeEntities, "entity");
-		sword = new Sword();
 
-		_hud = new HUD();
 		//var sprite = new FlxSprite(_player.x +, _player.y);
 		//sprite.makeGraphic(16, 16, FlxColor.BLUE);
 
@@ -91,22 +92,16 @@ class PlayState extends FlxState{
 		add(_grpSkeleton);
 		add(_grpRock);
 
+		//Cria uma camera para zoom
+		var cam:FlxCamera = FlxG.camera;
+		_zoomCam = new FlxZoomCamera(Std.int(cam.x), Std.int(cam.y), cam.width, cam.height, cam.zoom);
+		_zoomCam.follow(_player, NO_DEAD_ZONE, 3);
+ 
+		FlxG.cameras.reset(_zoomCam);
 
-		// Create the FlxZoomCamera and pass in the default
-		// camera's x/y/width/height/zoom values, then make
-		// it follow the player
-		// Set camera bounds so the camera doesn't show off-screen area
-		// camera = new FlxCamera(0, 0, 230, 180);
-		//camera.bgColor = FlxColor.TRANSPARENT;
-		// camera.setScrollBoundsRect(0, 0, 1000, 700);
-		// FlxG.cameras.reset(camera);
-		// camera.style = PLATFORMER;
-		//camera.setPosition(-_map.width/2, 0);
-		// camera.target = _player;
-		// camera.setBounds(200, 200);
-		FlxG.camera.follow(_player);
+		FlxG.camera.setScrollBoundsRect(0, 0, _map.width, _map.height);
 
-		//FlxG.log.add(_escadas2);
+		FlxG.fullscreen = true;
 		
 		super.create();
 	}
@@ -119,6 +114,7 @@ class PlayState extends FlxState{
 			//O jogador é mais alto que o bloco, sempre quebrando o bloco de cima primeiro
 			//Diminuir a diferença do Y
             sword.attackFront(_player.last, side);
+			FlxG.log.add(sword.last);
 			FlxG.overlap(sword, _grpBox, playerAttackBox);
 			//Se matar, colocar um esqueleto morto no lugar. 
 			FlxG.overlap(sword, _grpSkeleton, playerAttackBox); 
@@ -141,24 +137,24 @@ class PlayState extends FlxState{
 		
 		if(verificador){ //Se uma das teclas pressionadas o jogador sobe
 			_player.acceleration.y = 0;
-				_player.animation.play("CLIMB");
-				var _cima = FlxG.keys.anyPressed([UP, W]);
-        		var _baixo = FlxG.keys.anyPressed([DOWN, S]);
-				var _mouse = FlxG.mouse.justPressed;
+			_player.animation.play("CLIMB");
+			var _cima = FlxG.keys.anyPressed([UP, W]);
+			var _baixo = FlxG.keys.anyPressed([DOWN, S]);
+			var _mouse = FlxG.mouse.justPressed;
 
-				var velocidade = 200;
+			var velocidade = 200;
 
-				if(_cima)
-					_player.velocity.y = - velocidade;
-				else if(_baixo)
-					_player.velocity.y = velocidade *2;
-				else if(_mouse){
-					_player.velocity.y = - velocidade;
-				}
+			if(_cima)
+				_player.velocity.y = - velocidade;
+			else if(_baixo)
+				_player.velocity.y = velocidade *2;
+			else if(_mouse){
+				_player.velocity.y = - velocidade;
 			}
-			else{
-				_player.acceleration.y = 1000;
-			}    
+		}
+		else{ //Retornar gravidade
+			_player.acceleration.y = 1000;
+		}    
     }
 
 	function placeEntities(entityName:String, entityData:Xml):Void{
@@ -197,8 +193,7 @@ class PlayState extends FlxState{
 		_escadas2[2].y = 113;
 	}
 
-	override public function update(elapsed:Float):Void{
-		super.update(elapsed);
+	public function allColisions() {
 		FlxG.collide(_player, _walls); //Colisão
 		FlxG.collide(_player, _grpBox);
 		FlxG.collide(_grpBox, _walls);
@@ -206,24 +201,31 @@ class PlayState extends FlxState{
 		FlxG.collide(_grpSkeleton, _walls);
 		FlxG.collide(_grpSkeleton, _grpBox);
 		FlxG.collide(_grpSkeleton, _grpRock);
-		
-		//FlxG.collide(_grpSkeleton, _grpSkeleton);
-		climbing();
-		punch();
-		//sword.kill();
+	}
+
+	public function zoom() {
+		if (FlxG.keys.justPressed.ONE) _zoomCam.targetZoom += -0.25; // zoom in
+        if (FlxG.keys.justPressed.TWO) _zoomCam.targetZoom += 0.25; // zoom out
+	}
+
+	public function allOverlaps() {
 		FlxG.overlap(_player, _grpCoin, getCoin);
 		FlxG.overlap(_player, _grpWater, waterLetter);
 		FlxG.overlap(_player, _grpSkeleton, playerHurts);
-		
-		
-		
-		//FlxG.overlap(_grpSkeleton, _grpBox, changeDirection);
-		//FlxG.log.add(a);
-		//FlxG.overlap(_grpSkeleton, _grpSkeleton, changeDirection);
+	}
 
-		if(!_player.alive)
+	override public function update(elapsed:Float):Void{
+		super.update(elapsed);
+
+		zoom();
+
+		allColisions();
+		climbing();
+		punch();
+		allOverlaps();
+
+		if(!_player.alive) //Colocar mensagem que você morreu, etc...
 			FlxG.switchState(new MenuState());
-		//trace(_player.last);
 	}
 	/**
 	Apenas um hurt faria com que o jogador morresse instaneamente
@@ -238,10 +240,18 @@ class PlayState extends FlxState{
 			var life = Std.int(_player.health - 1);
 			_hud.updateHUD(life, _money);
 			//Colocar sprite do jogador brilhando aqui, ou recebendo dano
-			if(life == 0) P.hurt(1);
+			if(flashAux){
+				FlxG.camera.flash();
+				flashAux = false;
+			}
+			if(life == 0){ 
+				P.hurt(1);
+			}
 			else{
+				FlxG.camera.shake(1);
 				P.timer.start(0.3, function(Timer:FlxTimer){
 				P.hurt(1);
+				flashAux = true;
 			});
 			}
 		}
@@ -263,8 +273,9 @@ class PlayState extends FlxState{
 	function playerAttackBox(S: Sword, box: FlxObject): Void{
 		//var _mouse = FlxG.mouse.justPressed;
 
-		if(S.alive && S.exists && box.alive && box.exists)//
+		if(S.alive && S.exists && box.alive && box.exists){
 			box.kill();
+		}
 		sword.kill();
 	}
 }

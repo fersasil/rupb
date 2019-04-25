@@ -5,7 +5,6 @@ import flixel.text.FlxText;
 import flixel.FlxG;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.FlxSprite;
-import flixel.util.FlxSpriteUtil;
 
 
 class HUD extends FlxTypedGroup<FlxSprite>{

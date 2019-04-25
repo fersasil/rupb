@@ -32,7 +32,7 @@ class ApplicationMain
 
 		ManifestResources.init(config);
 
-		app.meta["build"] = "22";
+		app.meta["build"] = "23";
 		app.meta["company"] = "HaxeFlixel";
 		app.meta["file"] = "rupb";
 		app.meta["name"] = "rupb";
@@ -56,7 +56,7 @@ class ApplicationMain
 			maximized: false,
 			minimized: false,
 			parameters: {},
-			resizable: false,
+			resizable: true,
 			title: "rupb",
 			width: 640,
 			x: null,

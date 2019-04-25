@@ -1,15 +1,12 @@
 package;
 
 import flixel.util.FlxTimer;
-import flixel.math.FlxPoint;
 import flixel.FlxObject;
 import flixel.FlxG;
-import flixel.util.FlxColor;
 import flixel.FlxSprite;
 
 class Player extends FlxSprite {
     var velocidade:Float = 200;
-    //public var _climbing = false;
     var _parent:PlayState;
     public var timer: FlxTimer;
     public var movimentSide = true; //0 esquerda 1 direta
@@ -17,11 +14,8 @@ class Player extends FlxSprite {
     override public function new(?X:Float = 0, ?Y: Float = 0, Parent:PlayState){
         super(X, Y);
 
-        timer = new FlxTimer();
-
         health = 3;
-        
-        //makeGraphic(16, 16, FlxColor.BLUE);
+
         loadGraphic(AssetPaths.gnome__png, true, 20, 24);
         
         //Faz com que não se precise de uma imagem diferente para a 
@@ -29,24 +23,22 @@ class Player extends FlxSprite {
         setFacingFlip(FlxObject.RIGHT, false, false);
         setFacingFlip(FlxObject.LEFT, true, false);
 
-        //Cria as animações
+        //Criar animações
         animation.add("WALK", [1, 2, 3, 4], 10, false);
         animation.add("JUMP", [5, 6], 6, false);
         animation.add("JUMP-FALL", [7, 8], 6, false);
-        
         animation.add("SLASH", [12, 11, 12, 13], 10, false);
         animation.add("CLIMB", [19, 20, 21, 22], 6, false);
         
+        timer = new FlxTimer();
         
-        
+        //FISICA DO PERSONAGEM
         drag.x = drag.y = 1600;
         acceleration.y = 1000; //Cria Gravidade
-        //Criar animações
         this.maxVelocity.set(120, 200);
+        
+        //TEMPORARIO, REDIMENSIONA IMAGEM DO JOGADOR
         setGraphicSize(16, 22);
-        //updateHitbox(16, 16);
-        //setGraphicSize(16, 16);
-        //scale.set(0.5, 0.5);
         updateHitbox();
 
     }
@@ -59,36 +51,22 @@ class Player extends FlxSprite {
    
 
     function movement():Void {
-        var _cima:Bool = false;
-        var _baixo:Bool = false;
-        var _esquerda:Bool = false;
-        var _direita:Bool = false;
-
-        //Caso uma das teclas apertadas a variavel
-        //Sera setada como true
-
-        _cima = FlxG.keys.anyPressed([UP, W]);
-        _baixo = FlxG.keys.anyPressed([DOWN, S]);
-        _esquerda = FlxG.keys.anyPressed([LEFT, A]);
-        _direita = FlxG.keys.anyPressed([RIGHT, D]);
+        //suporte a varias teclas
+        var _cima:Bool = FlxG.keys.anyPressed([UP, W]) ? true : false;
+        var _baixo:Bool = FlxG.keys.anyPressed([DOWN, S]) ? true : false;
+        var _esquerda:Bool = FlxG.keys.anyPressed([LEFT, A]) ? true : false;
+        var _direita:Bool = FlxG.keys.anyPressed([RIGHT, D]) ? true : false;
 
         //Anular movimentos contrarios
-
-        if(_cima && _baixo ){
-            _cima =_baixo = false;
-        }
-        if(_esquerda && _direita){
-            _esquerda = _direita = false;
-        }
+        if(_cima && _baixo ) _cima =_baixo = false;
+        if(_esquerda && _direita) _esquerda = _direita = false;
         
-
-        if(_cima && this.isTouching(FlxObject.FLOOR)){
+        //MOVIMENTO
+        if(_cima && this.isTouching(FlxObject.FLOOR)){ //Só pula quando estiver encostando no chão
             velocity.y = - velocidade;
             facing = FlxObject.UP;
         }
         if(_baixo){
-            //velocity.y = velocidade;
-           // velocity.y = 0;
             //O personagem devera abaixar?
             facing = FlxObject.DOWN;
         }
@@ -110,7 +88,6 @@ class Player extends FlxSprite {
             case FlxObject.UP:
                 animation.play("JUMP");
             case FlxObject.DOWN:
-                //animation.play("d");
             }
         }
     }
