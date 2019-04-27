@@ -14,15 +14,11 @@ import flixel.addons.display.FlxZoomCamera;
 
 import flixel.addons.editors.ogmo.FlxOgmoLoader;
 
-//CRIAR CLASSE MOSNTRO E TODOS OS MONSTROS HERDARAM ELA
-//ARRUMAR SPRITE DA CAVEIRA
+//PULO DIAGONAL MUITO RAPIDO, ARRUMAR
 //ARRUMAR PULO NA BOX
 //ARRUMAR espadada para baixo
 //ARRUMAR fundo com bug
-//ADICIONAR CORAÇÃO no HUD
-//ADICIONAR SPRITE DE MORTE
-//ADICIONAR SPRITE DE DANO
-//ADICIONAR CAVEIRA RAPIDA ****
+
 //ARRUMAR IMPLEMENTAÇÃO DA ESCADA
 //IMPLEMENTAR CORREIO
 class PlayState extends FlxState{
@@ -36,9 +32,8 @@ class PlayState extends FlxState{
 	var _grpBox: FlxTypedGroup<Box>;
 	var _grpCoin: FlxTypedGroup<Coin>;
 	var _grpWater: FlxTypedGroup<Water>;
-	var _grpSkeleton: FlxTypedGroup<Skeleton>;
-	var _grpOrcMasked: FlxTypedGroup<OrcMasked>;
 	var _grpRock: FlxTypedGroup<Rock>;
+	var _grpMonster: FlxTypedGroup<Monster>;
 	var sword: Sword;
 	var _hud:HUD;
 	var _money:Int = 0;
@@ -54,8 +49,7 @@ class PlayState extends FlxState{
 		_grpBox = new FlxTypedGroup<Box>();
 		_grpCoin = new FlxTypedGroup<Coin>();
 		_grpWater = new FlxTypedGroup<Water>();
-		_grpSkeleton = new FlxTypedGroup<Skeleton>();
-		_grpOrcMasked = new FlxTypedGroup<OrcMasked>();
+		_grpMonster = new FlxTypedGroup<Monster>();
 		_grpRock = new FlxTypedGroup<Rock>();
 		_hud = new HUD();
 		_deadScreen = new DeadScreen();
@@ -64,8 +58,6 @@ class PlayState extends FlxState{
 		_boardNext = new BoardNext();
 		_nextLevel = new NextLevel();
 		sword = new Sword();
-		
-		
 		
 		//Carrega os layers do mapa
 		_walls = _map.loadTilemap(AssetPaths.tiles__png, 16, 16, "walls");
@@ -78,20 +70,10 @@ class PlayState extends FlxState{
 		_walls.setTileProperties(109, FlxObject.NONE); //Escada inicio
 		_walls.setTileProperties(75, FlxObject.NONE); //Escada fim
 
-		// _walls.setTileProperties(7, FlxObject.FLOOR);
-		// _walls.setTileProperties(8, FlxObject.FLOOR);
-		// _walls.setTileProperties(9, FlxObject.FLOOR);
-		// _walls.setTileProperties(41, FlxObject.FLOOR);
-		// _walls.setTileProperties(42, FlxObject.FLOOR);
-		// _walls.setTileProperties(43, FlxObject.FLOOR);
-		// _walls.setTileProperties(45, FlxObject.FLOOR);
 
 		_escadas2 = _walls.getTileCoords(109, false); //Isso é uma gambiarra, precisa ser arrumado
 		gambiArrumaY();
 
-
-		
-		
 		//https://opengameart.org/content/a-platformer-in-the-forest
 
 		//Colocar o jogador e as outras coisas no lugar certo do mapa
@@ -109,8 +91,7 @@ class PlayState extends FlxState{
 		add(_grpCoin);
 		add(sword);
 		add(_grpWater);
-		add(_grpSkeleton);
-		add(_grpOrcMasked);
+		add(_grpMonster);
 		add(_grpRock);
 		add(_deadScreen);
 		add(_boardNext);
@@ -143,10 +124,7 @@ class PlayState extends FlxState{
             sword.attackFront(_player.last, side);
 			FlxG.overlap(sword, _grpBox, playerAttackBox);
 			//Se matar, colocar um esqueleto morto no lugar. 
-			FlxG.overlap(sword, _grpSkeleton, playerAttackBox); 
-			FlxG.overlap(sword, _grpOrcMasked, playerAttackBox);
-
-			FlxG.log.add("JOGADOR X: " + _player.x);
+			FlxG.overlap(sword, _grpMonster, playerAttackBox); 
         }
     }
 	
@@ -166,19 +144,19 @@ class PlayState extends FlxState{
 		
 		if(verificador){ //Se uma das teclas pressionadas o jogador sobe
 			_player.acceleration.y = 0;
-			_player.animation.play("CLIMB");
 			var _cima = FlxG.keys.anyPressed([UP, W]);
 			var _baixo = FlxG.keys.anyPressed([DOWN, S]);
 			var _mouse = FlxG.mouse.justPressed;
 
 			var velocidade = 200;
 
-			if(_cima)
+			if(_cima || _mouse){
 				_player.velocity.y = - velocidade;
-			else if(_baixo)
+				_player.animation.play("CLIMB");
+			}
+			else if(_baixo){
 				_player.velocity.y = velocidade *2;
-			else if(_mouse){
-				_player.velocity.y = - velocidade;
+				_player.animation.play("CLIMB");
 			}
 		}
 		else{ //Retornar gravidade
@@ -205,7 +183,7 @@ class PlayState extends FlxState{
 			_grpWater.add(new Water(x, y));
 		}
 		else if(entityName == "skeleton"){
-			_grpSkeleton.add(new Skeleton(x + 2, y, FlxG.random.bool()));
+			_grpMonster.add(new Skeleton(x + 2, y, FlxG.random.bool()));
 		}
 		else if(entityName == "rock"){
 			_grpRock.add(new Rock(x, y + 7)); //Pedra se ajustar ao cenário
@@ -215,7 +193,7 @@ class PlayState extends FlxState{
 			_boardNext.y = y + 4;
 		}
 		else if(entityName == "orcMasked"){
-			_grpOrcMasked.add(new OrcMasked(x, y - 3));
+			_grpMonster.add(new OrcMasked(x, y - 3));
 		}
 	}
 
@@ -235,14 +213,10 @@ class PlayState extends FlxState{
 		//FlxG.collide(_player, FlxObject.FLOOR);
 		FlxG.collide(_grpBox, _walls);
 		FlxG.collide(_player, _grpRock);
-		FlxG.collide(_grpSkeleton, _walls);
-		FlxG.collide(_grpSkeleton, _grpBox);
-		FlxG.collide(_grpSkeleton, _grpRock);
-		FlxG.collide(_grpOrcMasked, _walls);
-		FlxG.collide(_grpOrcMasked, _grpRock);
-		FlxG.collide(_grpOrcMasked, _grpBox);
-		//FlxG.collide(_player, _boardNext);
-		FlxG.collide(_grpSkeleton, _boardNext);
+		FlxG.collide(_grpMonster, _walls);
+		FlxG.collide(_grpMonster, _grpBox);
+		FlxG.collide(_grpMonster, _grpRock);
+		FlxG.collide(_grpMonster, _boardNext);
 
 	}
 
@@ -255,18 +229,29 @@ class PlayState extends FlxState{
 	public function allOverlaps() {
 		FlxG.overlap(_player, _grpCoin, getCoin);
 		FlxG.overlap(_player, _grpWater, waterLetter);
-		FlxG.overlap(_player, _grpSkeleton, playerHurts);
+		FlxG.overlap(_player, _grpMonster, playerHurts);
 		FlxG.overlap(_player, _boardNext, goNextLevel);
-		FlxG.overlap(_player, _grpOrcMasked, playerHurts);
-		//FlxG.overlap(_player, _grpBox, getDown);
 	}
 
-	/*function getDown(P: Player, B:Box){
-		if(P.exists && P.alive && B.exists && B.alive){
-			P.velocity.y += 10;
-			FlxG.log.add(P.velocity);	
+	override public function update(elapsed:Float):Void{
+		super.update(elapsed);
+
+		zoom();
+		allColisions();
+		climbing();
+		punch();
+		allOverlaps();
+
+		if(!_player.alive){ //Colocar mensagem que você morreu, etc...
+			_hud.updateHUD(0, _money);
+			_deadScreen.newDeath(_money);
 		}
-	}*/
+	}
+
+	/* ------------------------------------------
+		FUNÇÕES A SEREM COLOCADAS NO CORREIO
+	----------------------------------------------
+	*/
 
 	function  goNextLevel(P: Player, B: BoardNext) {
 		if(P.exists && P.alive){
@@ -277,19 +262,6 @@ class PlayState extends FlxState{
 		}
 	}
 
-	override public function update(elapsed:Float):Void{
-		super.update(elapsed);
-
-		zoom();
-
-		allColisions();
-		climbing();
-		punch();
-		allOverlaps();
-
-		if(!_player.alive) //Colocar mensagem que você morreu, etc...
-			_deadScreen.newDeath(_money);
-	}
 	/**
 	Apenas um hurt faria com que o jogador morresse instaneamente
 	O timer faz com que o jogador leve dano apenas após 0.3 segundos
@@ -309,20 +281,22 @@ class PlayState extends FlxState{
 				FlxFlicker.flicker(_player);
 				flashAux = false;
 			}
-			if(life == 0){ 
+			if(life == 0){
+				FlxG.camera.flash();
 				P.hurt(1);
 			}
 			else{
 				FlxG.camera.shake(1);
 				P.timer.start(0.3, function(Timer:FlxTimer){
-				P.hurt(1);
-				flashAux = true;
-			});
+					P.hurt(1);
+					flashAux = true;
+				});
 			}
 		}
 	}
 	function waterLetter(P: Player, W: Water): Void {
 		if(P.alive && P.exists  && W.alive && W.exists){
+			FlxG.camera.flash();
 			P.kill();
 		}
 	}
