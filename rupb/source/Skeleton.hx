@@ -10,7 +10,7 @@ class Skeleton extends FlxSprite{
     public function new(X:Float = 0, Y:Float = 0, D: Bool = true) {
         super(X, Y);
 
-        loadGraphic(AssetPaths.skeletonSprite__png, true, 16, 16);
+        loadGraphic(AssetPaths.skull12x14__png , true, 12, 14);
 
         //Fazer com que só precise de um dos lados da animação
         setFacingFlip(FlxObject.RIGHT, false, false);
@@ -18,7 +18,7 @@ class Skeleton extends FlxSprite{
 
         //Criar animações
 
-        animation.add("WALK", [1, 2, 3], 10, false);
+        animation.add("WALK", [1, 2, 3], 7, false);
 
         //Direção em que os esqueletos andam ao nascer
         if(D) velocity.x = 20;

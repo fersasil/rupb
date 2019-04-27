@@ -48,7 +48,6 @@ class Player extends FlxSprite {
         super.update(elapsed);
     }
 
-   
 
     function movement():Void {
         //suporte a varias teclas
@@ -62,7 +61,8 @@ class Player extends FlxSprite {
         if(_esquerda && _direita) _esquerda = _direita = false;
         
         //MOVIMENTO
-        if(_cima && this.isTouching(FlxObject.FLOOR)){ //Só pula quando estiver encostando no chão
+        if(_cima && this.isTouching(FlxObject.DOWN)){ //Só pula quando estiver encostando no chão
+       // if(_cima && velocity.y == 0){
             velocity.y = - velocidade;
             facing = FlxObject.UP;
         }

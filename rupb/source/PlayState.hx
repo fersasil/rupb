@@ -1,5 +1,7 @@
 package;
 
+import flixel.FlxSprite;
+import flixel.effects.FlxFlicker;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.math.FlxPoint;
@@ -12,6 +14,7 @@ import flixel.addons.display.FlxZoomCamera;
 
 import flixel.addons.editors.ogmo.FlxOgmoLoader;
 
+//CRIAR CLASSE MOSNTRO E TODOS OS MONSTROS HERDARAM ELA
 //ARRUMAR SPRITE DA CAVEIRA
 //ARRUMAR PULO NA BOX
 //ARRUMAR espadada para baixo
@@ -19,7 +22,7 @@ import flixel.addons.editors.ogmo.FlxOgmoLoader;
 //ADICIONAR CORAÇÃO no HUD
 //ADICIONAR SPRITE DE MORTE
 //ADICIONAR SPRITE DE DANO
-//ADICIONAR CAVEIRA RAPIDA
+//ADICIONAR CAVEIRA RAPIDA ****
 //ARRUMAR IMPLEMENTAÇÃO DA ESCADA
 //IMPLEMENTAR CORREIO
 class PlayState extends FlxState{
@@ -34,6 +37,7 @@ class PlayState extends FlxState{
 	var _grpCoin: FlxTypedGroup<Coin>;
 	var _grpWater: FlxTypedGroup<Water>;
 	var _grpSkeleton: FlxTypedGroup<Skeleton>;
+	var _grpOrcMasked: FlxTypedGroup<OrcMasked>;
 	var _grpRock: FlxTypedGroup<Rock>;
 	var sword: Sword;
 	var _hud:HUD;
@@ -51,6 +55,7 @@ class PlayState extends FlxState{
 		_grpCoin = new FlxTypedGroup<Coin>();
 		_grpWater = new FlxTypedGroup<Water>();
 		_grpSkeleton = new FlxTypedGroup<Skeleton>();
+		_grpOrcMasked = new FlxTypedGroup<OrcMasked>();
 		_grpRock = new FlxTypedGroup<Rock>();
 		_hud = new HUD();
 		_deadScreen = new DeadScreen();
@@ -72,6 +77,14 @@ class PlayState extends FlxState{
 		_walls.setTileProperties(92, FlxObject.NONE); //Não colidir com escada
 		_walls.setTileProperties(109, FlxObject.NONE); //Escada inicio
 		_walls.setTileProperties(75, FlxObject.NONE); //Escada fim
+
+		// _walls.setTileProperties(7, FlxObject.FLOOR);
+		// _walls.setTileProperties(8, FlxObject.FLOOR);
+		// _walls.setTileProperties(9, FlxObject.FLOOR);
+		// _walls.setTileProperties(41, FlxObject.FLOOR);
+		// _walls.setTileProperties(42, FlxObject.FLOOR);
+		// _walls.setTileProperties(43, FlxObject.FLOOR);
+		// _walls.setTileProperties(45, FlxObject.FLOOR);
 
 		_escadas2 = _walls.getTileCoords(109, false); //Isso é uma gambiarra, precisa ser arrumado
 		gambiArrumaY();
@@ -97,6 +110,7 @@ class PlayState extends FlxState{
 		add(sword);
 		add(_grpWater);
 		add(_grpSkeleton);
+		add(_grpOrcMasked);
 		add(_grpRock);
 		add(_deadScreen);
 		add(_boardNext);
@@ -116,9 +130,12 @@ class PlayState extends FlxState{
 		super.create();
 	}
 
+
+	//A espada possui um bug do lado direito, por algum motivo ela parece menor do que deve ser...
+	//Resolver
 	function punch():Void {
         var _mouse:Bool = FlxG.mouse.justPressed ? true : false;
-        var side = _player.movimentSide ? 16 : -16;
+        var side = _player.movimentSide ? 16 : -5; //O lado em que a espada aparece
         if(_mouse){
 			_player.animation.play("SLASH");
 			//O jogador é mais alto que o bloco, sempre quebrando o bloco de cima primeiro
@@ -127,6 +144,9 @@ class PlayState extends FlxState{
 			FlxG.overlap(sword, _grpBox, playerAttackBox);
 			//Se matar, colocar um esqueleto morto no lugar. 
 			FlxG.overlap(sword, _grpSkeleton, playerAttackBox); 
+			FlxG.overlap(sword, _grpOrcMasked, playerAttackBox);
+
+			FlxG.log.add("JOGADOR X: " + _player.x);
         }
     }
 	
@@ -185,7 +205,7 @@ class PlayState extends FlxState{
 			_grpWater.add(new Water(x, y));
 		}
 		else if(entityName == "skeleton"){
-			_grpSkeleton.add(new Skeleton(x, y, FlxG.random.bool()));
+			_grpSkeleton.add(new Skeleton(x + 2, y, FlxG.random.bool()));
 		}
 		else if(entityName == "rock"){
 			_grpRock.add(new Rock(x, y + 7)); //Pedra se ajustar ao cenário
@@ -193,6 +213,9 @@ class PlayState extends FlxState{
 		else if(entityName == "nextLevel"){
 			_boardNext.x = x;
 			_boardNext.y = y + 4;
+		}
+		else if(entityName == "orcMasked"){
+			_grpOrcMasked.add(new OrcMasked(x, y - 3));
 		}
 	}
 
@@ -209,18 +232,24 @@ class PlayState extends FlxState{
 	public function allColisions() {
 		FlxG.collide(_player, _walls); //Colisão
 		FlxG.collide(_player, _grpBox);
+		//FlxG.collide(_player, FlxObject.FLOOR);
 		FlxG.collide(_grpBox, _walls);
 		FlxG.collide(_player, _grpRock);
 		FlxG.collide(_grpSkeleton, _walls);
 		FlxG.collide(_grpSkeleton, _grpBox);
 		FlxG.collide(_grpSkeleton, _grpRock);
+		FlxG.collide(_grpOrcMasked, _walls);
+		FlxG.collide(_grpOrcMasked, _grpRock);
+		FlxG.collide(_grpOrcMasked, _grpBox);
 		//FlxG.collide(_player, _boardNext);
 		FlxG.collide(_grpSkeleton, _boardNext);
+
 	}
 
 	public function zoom() {
 		if (FlxG.keys.justPressed.ONE) _zoomCam.targetZoom += -0.25; // zoom in
         if (FlxG.keys.justPressed.TWO) _zoomCam.targetZoom += 0.25; // zoom out
+		if(FlxG.mouse.wheel != 0) _zoomCam.targetZoom += (FlxG.mouse.wheel/10);
 	}
 
 	public function allOverlaps() {
@@ -228,7 +257,16 @@ class PlayState extends FlxState{
 		FlxG.overlap(_player, _grpWater, waterLetter);
 		FlxG.overlap(_player, _grpSkeleton, playerHurts);
 		FlxG.overlap(_player, _boardNext, goNextLevel);
+		FlxG.overlap(_player, _grpOrcMasked, playerHurts);
+		//FlxG.overlap(_player, _grpBox, getDown);
 	}
+
+	/*function getDown(P: Player, B:Box){
+		if(P.exists && P.alive && B.exists && B.alive){
+			P.velocity.y += 10;
+			FlxG.log.add(P.velocity);	
+		}
+	}*/
 
 	function  goNextLevel(P: Player, B: BoardNext) {
 		if(P.exists && P.alive){
@@ -258,7 +296,8 @@ class PlayState extends FlxState{
 	O hud é atualizado, porem. Caso a vida chegue a 0, o timer não é
 	acionado.
 	 */
-	function playerHurts(P: Player, S: Skeleton){
+	 //Criar superclasse monstros
+	function playerHurts(P: Player, S: FlxSprite){
 		if(P.alive && P.exists  && S.alive && S.exists){
 			
 			//P.solid = true;
@@ -266,7 +305,8 @@ class PlayState extends FlxState{
 			_hud.updateHUD(life, _money);
 			//Colocar sprite do jogador brilhando aqui, ou recebendo dano
 			if(flashAux){
-				FlxG.camera.flash();
+				//FlxG.camera.flash();
+				FlxFlicker.flicker(_player);
 				flashAux = false;
 			}
 			if(life == 0){ 

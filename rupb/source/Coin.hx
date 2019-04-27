@@ -5,7 +5,9 @@ import flixel.FlxSprite;
 class Coin extends FlxSprite{
     public function new(X: Float = 0, Y:Float = 0){
         super(X, Y);
-        loadGraphic(AssetPaths.coin__png, false, 7, 9);
+        loadGraphic(AssetPaths.coin_w6_h7__png, true, 6, 7);
+        animation.add("IDLE", [0, 1, 2, 3], 6, true);
+        animation.play("IDLE");
     }
 
 

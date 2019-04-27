@@ -277,7 +277,6 @@
     <coin id="200" x="80" y="16" />
     <coin id="201" x="96" y="16" />
     <player id="0" x="32" y="432" width="16" height="22" />
-    <rock id="187" x="112" y="112" />
     <rock id="188" x="320" y="112" />
     <rock id="189" x="432" y="112" />
     <rock id="190" x="608" y="224" />
@@ -294,11 +293,11 @@
     <skeleton id="81" x="592" y="336" />
     <skeleton id="186" x="256" y="336" />
     <skeleton id="191" x="80" y="224" />
-    <skeleton id="193" x="272" y="224" />
     <skeleton id="194" x="576" y="224" />
     <skeleton id="195" x="544" y="112" />
-    <skeleton id="207" x="224" y="112" />
     <skeleton id="208" x="64" y="112" />
     <nextLevel id="210" x="32" y="112" />
+    <orcMasked id="193" x="272" y="224" />
+    <orcMasked id="211" x="176" y="112" />
   </entity>
 </level>
