@@ -1,9 +1,11 @@
 package;
 
+import flixel.FlxG;
+import flixel.effects.FlxFlicker;
 import flixel.FlxObject;
 import flixel.FlxSprite;
 
-class Monster extends FlxSprite{
+class Monster extends Entity{
     public var monsterType: Int;
     public var VELOCITY: Float;
     public var count_moviment = 0;
@@ -12,6 +14,14 @@ class Monster extends FlxSprite{
     public function new(X:Float = 0, Y: Float = 0, monsterType:Int){
         super(X, Y);
         this.monsterType = monsterType;
+        health = 1;
+    }
+
+    //Da entidade
+    override public function onMessage(m: Message){
+        if(m.op == Message.OP_HURT){
+            hurt(m.data);
+        }
     }
 
     function verifyColision() {

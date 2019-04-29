@@ -19,8 +19,6 @@ import flixel.addons.editors.ogmo.FlxOgmoLoader;
 //ARRUMAR espadada para baixo
 //ARRUMAR fundo com bug
 
-//IMPLEMENTAR CORREIO
-
 class PlayState extends FlxState{
 	var _player:Player;
 	var _boardNext:BoardNext;
@@ -42,8 +40,7 @@ class PlayState extends FlxState{
 	var _deadScreen: DeadScreen;
 	var _zoomCam:FlxZoomCamera;
 	var flashAux: Bool = true;
-
-	public static inline var ESCADA = 20;
+	var _correio: Correio;
 
 	override public function create():Void { 
 		_grpBox = new FlxTypedGroup<Box>();
@@ -52,7 +49,8 @@ class PlayState extends FlxState{
 		_grpMonster = new FlxTypedGroup<Monster>();
 		_grpRock = new FlxTypedGroup<Rock>();
 		_grpStair = new FlxTypedGroup<Stair>();
-	
+
+		_correio = new Correio();
 		_hud = new HUD();
 		_deadScreen = new DeadScreen();
 		_player = new Player(0, 0, this);
@@ -79,7 +77,7 @@ class PlayState extends FlxState{
 
 		//var sprite = new FlxSprite(_player.x +, _player.y);
 		//sprite.makeGraphic(16, 16, FlxColor.BLUE);
-	
+		add(_correio); //Se não adicionar o correio ele não atualiza e não funciona!!!!
 		add(_bkColor);
 		add(_bk);
 		add(_walls);
@@ -114,16 +112,12 @@ class PlayState extends FlxState{
 	//A espada possui um bug do lado direito, por algum motivo ela parece menor do que deve ser...
 	//Resolver
 	function punch():Void {
-        var _mouse:Bool = FlxG.mouse.justPressed ? true : false;
-        var side = _player.movimentSide ? 16 : -5; //O lado em que a espada aparece
-        if(_mouse){
-			_player.animation.play("SLASH");
-			//O jogador é mais alto que o bloco, sempre quebrando o bloco de cima primeiro
-			//Diminuir a diferença do Y
-            sword.attackFront(_player.last, side);
+        if(FlxG.mouse.justPressed){
+			var m = new Message(_player, sword, Message.OP_ATTACK);
+			_correio.send(m);
 			FlxG.overlap(sword, _grpBox, playerAttackBox);
-			//Se matar, colocar um esqueleto morto no lugar. 
 			FlxG.overlap(sword, _grpMonster, playerAttackBox); 
+			//Se matar, colocar um esqueleto morto no lugar?
         }
     }
 	
@@ -163,11 +157,6 @@ class PlayState extends FlxState{
 		}
 	}
 
-	//O y do personagem decresce no mapa, enquanto o y do mapa aumenta
-	//A função a seguir arruma o y das escadas de acordo com o y desejado para a função
-	//funcionar
-	//Mover essa função para classe player
-
 	public function allColisions() {
 		FlxG.collide(_player, _walls); //Colisão
 		FlxG.collide(_player, _grpBox);
@@ -188,25 +177,19 @@ class PlayState extends FlxState{
 	}
 
 	public function allOverlaps() {
-		FlxG.overlap(_player, _grpCoin, getCoin);
-		FlxG.overlap(_player, _grpWater, waterLetter);
-		//FlxG.overlap(_player, _grpMonster, playerHurts);
-		FlxG.overlap(_player, _boardNext, goNextLevel);
+		FlxG.overlap(_player, _grpCoin, getCoin); // OK
+		FlxG.overlap(_player, _grpWater, waterLetter); //Ok
 		
-		if(!FlxG.overlap(_player, _grpStair, climbStair)){}
+		FlxG.overlap(_player, _grpMonster, playerHurts); // Ok
+		
+		FlxG.overlap(_player, _boardNext, goNextLevel); //OK
+		
+		FlxG.overlap(_player, _grpStair, climbStair); //ok
+
+		punch(); //ok -> talvez mudar p/ collision
 	}
 
-	public function climbStair(P: Player, S: Stair) {
-		if(P.exists && P.alive && FlxG.keys.anyPressed([UP, W])){
-			//FlxG.log.add("ESCADA");
-			//P.acceleration.y = 0;
-			P.velocity.y = - 120;
-			_player.animation.play("CLIMB");
-		}
-		else{ //Animação do jogador de costas
-			
-		}
-	}
+	
 
 	override public function update(elapsed:Float):Void{
 		super.update(elapsed);
@@ -214,8 +197,9 @@ class PlayState extends FlxState{
 		zoom();
 		allColisions();
 		//climbing();
-		punch();
+		
 		allOverlaps();
+
 
 		if(!_player.alive){ //Colocar mensagem que você morreu, etc...
 			_hud.updateHUD(0, _money);
@@ -228,67 +212,50 @@ class PlayState extends FlxState{
 	----------------------------------------------
 	*/
 
-	function  goNextLevel(P: Player, B: BoardNext) {
-		if(P.exists && P.alive){
-			P.exists = false;
+	public function climbStair(player: Entity, stair: Entity) {
+		if(player.exists && player.alive && FlxG.keys.anyPressed([UP, W])){ //Colocar essa verificação na mensagem?
+			var m = new Message(stair, player, Message.OP_CLIMB, -120);
+			_correio.send(m);
+		}
+
+	}
+
+	function  goNextLevel(player: Entity, winSpot: Entity) {
+		if(player.exists && player.alive){
+			var m = new Message(player, winSpot, Message.OP_WINS, _money);
+			_correio.send(m);
 			_nextLevel.wins(_money);
-			//EFEITOS, ETC.
-			//MATAR JOGADOR PROVISORIAMENTE
 		}
 	}
 
-	/**
-	Apenas um hurt faria com que o jogador morresse instaneamente
-	O timer faz com que o jogador leve dano apenas após 0.3 segundos
-	O hud é atualizado, porem. Caso a vida chegue a 0, o timer não é
-	acionado.
-	 */
-	 //Criar superclasse monstros
-	function playerHurts(P: Player, S: FlxSprite){
-		if(P.alive && P.exists  && S.alive && S.exists){
-			
-			//P.solid = true;
-			var life = Std.int(_player.health - 1);
-			_hud.updateHUD(life, _money);
-			//Colocar sprite do jogador brilhando aqui, ou recebendo dano
-			if(flashAux){
-				//FlxG.camera.flash();
-				FlxFlicker.flicker(_player);
-				flashAux = false;
-			}
-			if(life == 0){
-				FlxG.camera.flash();
-				P.hurt(1);
-			}
-			else{
-				FlxG.camera.shake(1);
-				P.timer.start(0.3, function(Timer:FlxTimer){
-					P.hurt(1);
-					flashAux = true;
-				});
-			}
+
+	function playerHurts(player: Entity, monster: Entity){
+		if(player.alive && player.exists  && monster.alive && monster.exists){
+			var m = new Message(monster, player, Message.OP_HURT, 1);
+			_hud.updateHUD(Std.int(player.health - 1), _money);
+			_correio.send(m);
 		}
 	}
-	function waterLetter(P: Player, W: Water): Void {
-		if(P.alive && P.exists  && W.alive && W.exists){
-			FlxG.camera.flash();
-			P.kill();
+	function waterLetter(player: Entity, water: Entity): Void {
+		if(player.alive && player.exists  && water.alive && water.exists){
+			var m = new Message(water, player, Message.OP_KILL);
+			_correio.send(m);
 		}
 	}
 
-	function getCoin(P: Player, C: Coin): Void {
-		if(P.alive && P.exists && C.alive && C.exists){
-			C.kill();
-			_money++;
-			_hud.updateHUD(Std.int(_player.health), _money);
+	function getCoin(player: Entity, coin: Entity): Void {
+		if(player.alive && player.exists && coin.alive && coin.exists){
+			var m = new Message(player, coin, Message.OP_KILL);
+			_correio.send(m);
+			_hud.updateHUD(Std.int(_player.health), ++_money);
 		}
 	}
 
-	function playerAttackBox(S: Sword, box: FlxObject): Void{
+	function playerAttackBox(sword: Entity, enemy: Entity): Void{
 		//var _mouse = FlxG.mouse.justPressed;
-
-		if(S.alive && S.exists && box.alive && box.exists){
-			box.kill();
+		if(sword.alive && sword.exists && enemy.alive && enemy.exists){
+			var m = new Message(sword, enemy, Message.OP_HURT, 1);
+			_correio.send(m);
 		}
 		sword.kill();
 	}

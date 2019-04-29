@@ -1,20 +1,22 @@
 package;
 
+import flixel.effects.FlxFlicker;
 import flixel.util.FlxTimer;
 import flixel.FlxObject;
 import flixel.FlxG;
 import flixel.FlxSprite;
 
-class Player extends FlxSprite {
+class Player extends Entity{
     var velocidade:Float = 200;
-    var _parent:PlayState;
+    var flikers: Bool = true;
+    var climbing: Bool = false;
     public var timer: FlxTimer;
-    public var movimentSide = true; //0 esquerda 1 direta
 
     override public function new(?X:Float = 0, ?Y: Float = 0, Parent:PlayState){
         super(X, Y);
 
         health = 3;
+        movimentSide = true; //0 esquerda 1 direta
 
         loadGraphic(AssetPaths.gnome__png, true, 20, 24);
         
@@ -46,6 +48,44 @@ class Player extends FlxSprite {
     override public function update(elapsed:Float):Void{
         movement();
         super.update(elapsed);
+    }
+
+    /**
+	Apenas um hurt faria com que o jogador morresse instaneamente
+	O timer faz com que o jogador leve dano apenas após 0.3 segundos
+	O hud é atualizado, porem. Caso a vida chegue a 0, o timer não é
+	acionado.
+	 */
+    override public function onMessage(m: Message){
+        if(m.op == Message.OP_HURT){
+            if(flikers){
+                FlxFlicker.flicker(this);
+                flikers = false;
+            }
+
+            if(health - 1 == 0){
+                FlxG.camera.flash();
+                hurt(1);
+            }
+            else{
+                FlxG.camera.shake(1);
+                timer.start(0.3, function(Timer:FlxTimer){
+                    hurt(m.data);
+                    flikers = true;
+                });
+            }
+        }
+        else if(m.op == Message.OP_CLIMB){
+            velocity.y = - 120;
+            climbing = true;
+        }
+        else if(m.op == Message.OP_KILL){
+            FlxG.camera.flash();
+            kill();
+        }
+        else if(m.op == Message.OP_HEAL){
+
+        }
     }
 
 
@@ -80,14 +120,21 @@ class Player extends FlxSprite {
             movimentSide = false;
             facing = FlxObject.LEFT;
         }
+
+        if(climbing){
+            animation.play("CLIMB");
+            climbing = false; //Isso evita que a animação de escalando continue mesmo depois que sair da escada
+        }
+        else{
         //Só devera haver animação enquanto as teclas serem pressionadas
-        if ((velocity.x != 0 || velocity.y != 0) && !isTouching(facing)){
-            switch (facing){
-            case FlxObject.LEFT, FlxObject.RIGHT:
-                animation.play("WALK");
-            case FlxObject.UP:
-                animation.play("JUMP");
-            case FlxObject.DOWN:
+            if((velocity.x != 0 || velocity.y != 0) && !isTouching(facing)){
+                switch (facing){
+                case FlxObject.LEFT, FlxObject.RIGHT:
+                    animation.play("WALK");
+                case FlxObject.UP:
+                    animation.play("JUMP");
+                case FlxObject.DOWN:
+                }
             }
         }
     }
