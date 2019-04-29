@@ -28,7 +28,7 @@ class Player extends FlxSprite {
         animation.add("JUMP", [5, 6], 6, false);
         animation.add("JUMP-FALL", [7, 8], 6, false);
         animation.add("SLASH", [12, 11, 12, 13], 10, false);
-        animation.add("CLIMB", [19, 20, 21, 22], 6, false);
+        animation.add("CLIMB", [19, 20, 21, 22], 6, true);
         
         timer = new FlxTimer();
         

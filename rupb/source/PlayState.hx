@@ -19,8 +19,8 @@ import flixel.addons.editors.ogmo.FlxOgmoLoader;
 //ARRUMAR espadada para baixo
 //ARRUMAR fundo com bug
 
-//ARRUMAR IMPLEMENTAÇÃO DA ESCADA
 //IMPLEMENTAR CORREIO
+
 class PlayState extends FlxState{
 	var _player:Player;
 	var _boardNext:BoardNext;
@@ -28,12 +28,12 @@ class PlayState extends FlxState{
 	var _walls:FlxTilemap;
 	var _bk:FlxTilemap;
 	var _bkColor:FlxTilemap;
-	var _escadas2: Array<FlxPoint>;
 	var _grpBox: FlxTypedGroup<Box>;
 	var _grpCoin: FlxTypedGroup<Coin>;
 	var _grpWater: FlxTypedGroup<Water>;
 	var _grpRock: FlxTypedGroup<Rock>;
 	var _grpMonster: FlxTypedGroup<Monster>;
+	var _grpStair: FlxTypedGroup<Stair>;
 	var sword: Sword;
 	var _hud:HUD;
 	var _money:Int = 0;
@@ -51,6 +51,8 @@ class PlayState extends FlxState{
 		_grpWater = new FlxTypedGroup<Water>();
 		_grpMonster = new FlxTypedGroup<Monster>();
 		_grpRock = new FlxTypedGroup<Rock>();
+		_grpStair = new FlxTypedGroup<Stair>();
+	
 		_hud = new HUD();
 		_deadScreen = new DeadScreen();
 		_player = new Player(0, 0, this);
@@ -70,10 +72,6 @@ class PlayState extends FlxState{
 		_walls.setTileProperties(109, FlxObject.NONE); //Escada inicio
 		_walls.setTileProperties(75, FlxObject.NONE); //Escada fim
 
-
-		_escadas2 = _walls.getTileCoords(109, false); //Isso é uma gambiarra, precisa ser arrumado
-		gambiArrumaY();
-
 		//https://opengameart.org/content/a-platformer-in-the-forest
 
 		//Colocar o jogador e as outras coisas no lugar certo do mapa
@@ -81,10 +79,11 @@ class PlayState extends FlxState{
 
 		//var sprite = new FlxSprite(_player.x +, _player.y);
 		//sprite.makeGraphic(16, 16, FlxColor.BLUE);
-
+	
 		add(_bkColor);
 		add(_bk);
 		add(_walls);
+		//add(_grpStair);
 		add(_player);
 		add(_hud);
 		add(_grpBox);
@@ -128,42 +127,6 @@ class PlayState extends FlxState{
         }
     }
 	
-	//Mover essa função para a classe player o quanto antes
-	function climbing(){
-		//Log.trace(_player.last);
-		//FlxG.log.add(_player.last);
-		var verificador = false;
-
-        if(_player.x == _escadas2[0].x && _player.y - _escadas2[0].y >= 0) //Verifica se o jogador esta na mesma posição da primeira escada
-			verificador = true;
-		else if(_player.x == _escadas2[1].x && _player.y - _escadas2[1].y >= 0 && _player.y <= 330) //Verifica se o jogador esta na escada dois
-			verificador = true;
-
-		else if(_player.x == _escadas2[2].x && _player.y - _escadas2[2].y >= 0 && _player.y <= 224) //verifica se o jogador esta na escada 3 com a altura certa
-			verificador = true;
-		
-		if(verificador){ //Se uma das teclas pressionadas o jogador sobe
-			_player.acceleration.y = 0;
-			var _cima = FlxG.keys.anyPressed([UP, W]);
-			var _baixo = FlxG.keys.anyPressed([DOWN, S]);
-			var _mouse = FlxG.mouse.justPressed;
-
-			var velocidade = 200;
-
-			if(_cima || _mouse){
-				_player.velocity.y = - velocidade;
-				_player.animation.play("CLIMB");
-			}
-			else if(_baixo){
-				_player.velocity.y = velocidade *2;
-				_player.animation.play("CLIMB");
-			}
-		}
-		else{ //Retornar gravidade
-			_player.acceleration.y = 1000;
-		}    
-    }
-
 	function placeEntities(entityName:String, entityData:Xml):Void{
 		var x:Int = Std.parseInt(entityData.get("x"));
 		var y:Int = Std.parseInt(entityData.get("y"));
@@ -195,17 +158,15 @@ class PlayState extends FlxState{
 		else if(entityName == "orcMasked"){
 			_grpMonster.add(new OrcMasked(x, y - 3));
 		}
+		else if(entityName == "stairs"){
+			_grpStair.add(new Stair(x, y));
+		}
 	}
 
 	//O y do personagem decresce no mapa, enquanto o y do mapa aumenta
 	//A função a seguir arruma o y das escadas de acordo com o y desejado para a função
 	//funcionar
 	//Mover essa função para classe player
-	function gambiArrumaY() {
-		_escadas2[0].y = 337;
-		_escadas2[1].y = 225;
-		_escadas2[2].y = 113;
-	}
 
 	public function allColisions() {
 		FlxG.collide(_player, _walls); //Colisão
@@ -229,8 +190,22 @@ class PlayState extends FlxState{
 	public function allOverlaps() {
 		FlxG.overlap(_player, _grpCoin, getCoin);
 		FlxG.overlap(_player, _grpWater, waterLetter);
-		FlxG.overlap(_player, _grpMonster, playerHurts);
+		//FlxG.overlap(_player, _grpMonster, playerHurts);
 		FlxG.overlap(_player, _boardNext, goNextLevel);
+		
+		if(!FlxG.overlap(_player, _grpStair, climbStair)){}
+	}
+
+	public function climbStair(P: Player, S: Stair) {
+		if(P.exists && P.alive && FlxG.keys.anyPressed([UP, W])){
+			//FlxG.log.add("ESCADA");
+			//P.acceleration.y = 0;
+			P.velocity.y = - 120;
+			_player.animation.play("CLIMB");
+		}
+		else{ //Animação do jogador de costas
+			
+		}
 	}
 
 	override public function update(elapsed:Float):Void{
@@ -238,7 +213,7 @@ class PlayState extends FlxState{
 
 		zoom();
 		allColisions();
-		climbing();
+		//climbing();
 		punch();
 		allOverlaps();
 
