@@ -7,10 +7,11 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 
 class Player extends Entity{
-    var velocidade:Float = 200;
     var flikers: Bool = true;
     var climbing: Bool = false;
     public var timer: FlxTimer;
+    public static inline var VELOCITY_X = 120;
+    public static inline var VELOCITY_Y = 200;
 
     override public function new(?X:Float = 0, ?Y: Float = 0, Parent:PlayState){
         super(X, Y);
@@ -103,7 +104,7 @@ class Player extends Entity{
         //MOVIMENTO
         if(_cima && this.isTouching(FlxObject.DOWN)){ //Só pula quando estiver encostando no chão
        // if(_cima && velocity.y == 0){
-            velocity.y = - velocidade;
+            velocity.y = - VELOCITY_Y;
             facing = FlxObject.UP;
         }
         if(_baixo){
@@ -111,12 +112,12 @@ class Player extends Entity{
             facing = FlxObject.DOWN;
         }
         if(_direita){
-            velocity.x = velocidade - 30;
+            velocity.x = VELOCITY_X;
             movimentSide = true;
             facing = FlxObject.RIGHT;
         }
         if(_esquerda){
-            velocity.x = -velocidade + 30;
+            velocity.x = -VELOCITY_X;
             movimentSide = false;
             facing = FlxObject.LEFT;
         }

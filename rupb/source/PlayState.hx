@@ -14,10 +14,12 @@ import flixel.addons.display.FlxZoomCamera;
 
 import flixel.addons.editors.ogmo.FlxOgmoLoader;
 
-//PULO DIAGONAL MUITO RAPIDO, ARRUMAR
-//ARRUMAR PULO NA BOX
+//PULO DIAGONAL MUITO RAPIDO, ARRUMAR ? 
+//ARRUMAR PULO NA BOX ? 
+
 //ARRUMAR espadada para baixo
 //ARRUMAR fundo com bug
+//ARRUMAR SPRITE jogador
 
 class PlayState extends FlxState{
 	var _player:Player;
@@ -112,12 +114,11 @@ class PlayState extends FlxState{
 	//A espada possui um bug do lado direito, por algum motivo ela parece menor do que deve ser...
 	//Resolver
 	function punch():Void {
-        if(FlxG.mouse.justPressed){
+		FlxG.overlap(sword, _grpBox, playerAttackBox);
+        
+		if(FlxG.mouse.justPressed){
 			var m = new Message(_player, sword, Message.OP_ATTACK);
 			_correio.send(m);
-			FlxG.overlap(sword, _grpBox, playerAttackBox);
-			FlxG.overlap(sword, _grpMonster, playerAttackBox); 
-			//Se matar, colocar um esqueleto morto no lugar?
         }
     }
 	
@@ -167,6 +168,8 @@ class PlayState extends FlxState{
 		FlxG.collide(_grpMonster, _grpBox);
 		FlxG.collide(_grpMonster, _grpRock);
 		FlxG.collide(_grpMonster, _boardNext);
+		FlxG.collide(sword, _grpMonster, playerAttackBox);
+		//FlxG.collide(sword, _grpBox, playerAttackBox);
 
 	}
 
@@ -185,8 +188,22 @@ class PlayState extends FlxState{
 		FlxG.overlap(_player, _boardNext, goNextLevel); //OK
 		
 		FlxG.overlap(_player, _grpStair, climbStair); //ok
+		
+		if(FlxG.mouse.justPressed){ 
+			//Mouse pressionado, chamar a espada
+			var m = new Message(_player, sword, Message.OP_ATTACK);
+			_correio.send(m);
+		}
 
-		punch(); //ok -> talvez mudar p/ collision
+		//Verificar se há overlap entre a caixa e a espada
+		if(!FlxG.overlap(sword, _grpBox, function (sword, box){
+			var m = new Message(sword, box, Message.OP_KILL);
+			m.data = _player.movimentSide ? 1 : 0;
+			_correio.send(m);
+		})){
+			sword.kill();
+		}
+		//punch(); //ok -> talvez mudar p/ collision
 	}
 
 	
@@ -252,11 +269,10 @@ class PlayState extends FlxState{
 	}
 
 	function playerAttackBox(sword: Entity, enemy: Entity): Void{
-		//var _mouse = FlxG.mouse.justPressed;
-		if(sword.alive && sword.exists && enemy.alive && enemy.exists){
+		if(enemy.alive && enemy.exists){
 			var m = new Message(sword, enemy, Message.OP_HURT, 1);
 			_correio.send(m);
+			FlxG.log.add("OK");
 		}
-		sword.kill();
 	}
 }

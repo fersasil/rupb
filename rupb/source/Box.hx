@@ -1,5 +1,6 @@
 package;
 
+import flixel.FlxG;
 import flixel.FlxSprite;
 
 class Box extends Entity {
@@ -11,8 +12,9 @@ class Box extends Entity {
     }
     //Da entidade
     override public function onMessage(m: Message){
-        if(m.op == Message.OP_HURT){
-            hurt(1);
+        if(m.op == Message.OP_KILL){
+            kill();
+            m.from.kill(); //Faz a espada desaparecer!
         }    
     }
 }

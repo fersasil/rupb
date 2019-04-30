@@ -1,10 +1,12 @@
 package;
 
+import flixel.effects.FlxFlicker;
 import flixel.FlxObject;
 
 class Skeleton extends Monster{
     public function new(X:Float = 0, Y:Float = 0, D: Bool = true) {
         super(X, Y, 0);
+        health = 2;
 
         loadGraphic(AssetPaths.skull12x14__png , true, 12, 14);
 
@@ -19,6 +21,16 @@ class Skeleton extends Monster{
         //Direção em que os esqueletos andam ao nascer
         if(D) velocity.x = 20;
         else velocity.x = -20;
+
+        //acceleration.y = 200;
+    }
+    
+    override public function onMessage(m: Message){
+        if(m.op == Message.OP_HURT){
+            hurt(m.data);
+            FlxFlicker.flicker(this, .4);
+            m.from.kill(); //destroi a espada
+        }
     }
 
     override public function update(elapsed:Float):Void {
