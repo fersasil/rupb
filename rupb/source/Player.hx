@@ -19,19 +19,29 @@ class Player extends Entity{
         health = 3;
         movimentSide = true; //0 esquerda 1 direta
 
-        loadGraphic(AssetPaths.gnome__png, true, 20, 24);
+        loadGraphic(AssetPaths.sheet_hero_idle28x30__png, true, 30, 30);
         
         //Faz com que não se precise de uma imagem diferente para a 
         //esquerda e para a direita
         setFacingFlip(FlxObject.RIGHT, false, false);
         setFacingFlip(FlxObject.LEFT, true, false);
+        
+        animation.add("IDLE", [0, 1, 2, 3, 4, 5, 6], 9, true); //9 ou 8
+        animation.add("JUMP", [7, 8, 9, 10, 11], 6, false);
+        animation.add("SLASH", [12, 13, 14, 15], 10, false);
+        animation.add("WALK", [16, 17, 18], 10, false);
+        animation.add("HURT", [19, 20, 21, 22, 23, 24], 10, false);
+        animation.add("CLIMB", [22], 10, false);
+        animation.add("DUCK", [24, 25, 26, 27, 28, 29], 10, false);
 
+        //IDLE 1-6
+        //JUMP 7-11
         //Criar animações
-        animation.add("WALK", [1, 2, 3, 4], 10, false);
+        /*animation.add("WALK", [1, 2, 3, 4], 10, false);
         animation.add("JUMP", [5, 6], 6, false);
-        animation.add("JUMP-FALL", [7, 8], 6, false);
+
         animation.add("SLASH", [12, 11, 12, 13], 10, false);
-        animation.add("CLIMB", [19, 20, 21, 22], 6, true);
+        animation.add("CLIMB", [19, 20, 21, 22], 6, true);*/
         
         timer = new FlxTimer();
         
@@ -41,8 +51,12 @@ class Player extends Entity{
         this.maxVelocity.set(120, 200);
         
         //TEMPORARIO, REDIMENSIONA IMAGEM DO JOGADOR
-        setGraphicSize(16, 22);
+        setGraphicSize(16, 20);
+        setSize(16, 20);
+        
         updateHitbox();
+
+        //animation.play("IDLE");
 
     }
 
@@ -61,6 +75,7 @@ class Player extends Entity{
         if(m.op == Message.OP_HURT){
             if(flikers){
                 FlxFlicker.flicker(this);
+                animation.play("HURT");
                 flikers = false;
             }
 
@@ -120,6 +135,9 @@ class Player extends Entity{
             velocity.x = -VELOCITY_X;
             movimentSide = false;
             facing = FlxObject.LEFT;
+        }
+        if(!_cima && !_baixo && !_esquerda && !_direita && climbing){
+            animation.play("IDLE");
         }
 
         if(climbing){

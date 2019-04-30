@@ -220,11 +220,7 @@
       <ImageDefinition DrawMode="Image" ImagePath="..\images\escada1.png" Tiled="false">
         <RectColor A="255" R="255" G="0" B="0" />
       </ImageDefinition>
-      <ValueDefinitions>
-        <ValueDefinition xsi:type="IntValueDefinition" Name="0" Default="0" Min="0" Max="100" ShowSlider="false" />
-        <ValueDefinition xsi:type="IntValueDefinition" Name="1" Default="0" Min="0" Max="100" ShowSlider="false" />
-        <ValueDefinition xsi:type="IntValueDefinition" Name="2" Default="0" Min="0" Max="100" ShowSlider="false" />
-      </ValueDefinitions>
+      <ValueDefinitions />
       <NodesDefinition Enabled="false" Limit="-1" DrawMode="None" Ghost="false" />
     </EntityDefinition>
   </EntityDefinitions>

@@ -14,12 +14,9 @@ import flixel.addons.display.FlxZoomCamera;
 
 import flixel.addons.editors.ogmo.FlxOgmoLoader;
 
-//PULO DIAGONAL MUITO RAPIDO, ARRUMAR ? 
-//ARRUMAR PULO NA BOX ? 
-
-//ARRUMAR espadada para baixo
-//ARRUMAR fundo com bug
-//ARRUMAR SPRITE jogador
+//ARRUMAR PULO NA BOX ?
+//ARRUMAR ZOOM
+//ARRUMAR MOEDA
 
 class PlayState extends FlxState{
 	var _player:Player;
