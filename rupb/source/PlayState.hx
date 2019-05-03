@@ -69,7 +69,6 @@ class PlayState extends FlxState{
 		_walls.setTileProperties(109, FlxObject.NONE); //Escada inicio
 		_walls.setTileProperties(75, FlxObject.NONE); //Escada fim
 
-		//https://opengameart.org/content/a-platformer-in-the-forest
 
 		//Colocar o jogador e as outras coisas no lugar certo do mapa
 		_map.loadEntities(placeEntities, "entity");
@@ -209,9 +208,7 @@ class PlayState extends FlxState{
 		super.update(elapsed);
 
 		zoom();
-		allColisions();
-		//climbing();
-		
+		allColisions();		
 		allOverlaps();
 
 

@@ -3,7 +3,6 @@ package;
 import flixel.ui.FlxButton;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.FlxG;
-import js.html.ConsoleInstance;
 import flixel.util.FlxColor;
 import flixel.text.FlxText;
 import flixel.FlxSprite;
@@ -77,6 +76,6 @@ class DeadScreen extends FlxTypedGroup<FlxSprite>{
     }
 
     function resetGame(): Void {
-        FlxG.switchState(new PlayState());
+        FlxG.resetState();
     }
 }
