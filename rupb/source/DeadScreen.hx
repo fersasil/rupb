@@ -20,8 +20,8 @@ class DeadScreen extends FlxTypedGroup<FlxSprite>{
         _fundo = new FlxSprite();
         _deathText = new FlxText();
         _infoText = new FlxText();
-        _btnJogar = new FlxButton(0, 0, "Jogar", resetGame);
-        _btnMenuPrincipal = new FlxButton(0, 0, "Voltar", menuPrincial);
+        _btnJogar = new FlxButton(0, 0, "PLAY AGAIN", resetGame);
+        _btnMenuPrincipal = new FlxButton(0, 0, "I GIVE UP!", menuPrincial);
 
         //quadrado de 200 x 200;
         _fundo.makeGraphic(300, 200, FlxColor.BLACK);
@@ -58,16 +58,18 @@ class DeadScreen extends FlxTypedGroup<FlxSprite>{
         });
 
         exists = false;
+        alive = false;
     }
 
-    public function newDeath(coin: Int = 0){
+    public function newDeath(coin: Int = 0):Void{
         //Adicionar o numero de moedas
-        _infoText.text = "COINS: " + coin;
+        _infoText.text = "COINS " + coin;
         //Recentralizar texto
        // _infoText.x = _fundo.x + _fundo.width/2 - _infoText.width/2;
         //_infoText.y = _fundo.y + _deathText.height + _infoText.height + 15;
 
         exists = true;
+        alive = true;
         
     }
 

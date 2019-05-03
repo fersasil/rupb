@@ -1,13 +1,9 @@
 package;
 
-import flixel.FlxSprite;
-import flixel.effects.FlxFlicker;
 import flixel.FlxG;
 import flixel.FlxObject;
-import flixel.math.FlxPoint;
 import flixel.FlxState;
 import flixel.tile.FlxTilemap;
-import flixel.util.FlxTimer;
 import flixel.group.FlxGroup;
 import flixel.FlxCamera;
 import flixel.addons.display.FlxZoomCamera;
@@ -33,15 +29,19 @@ class PlayState extends FlxState{
 	var _grpStair: FlxTypedGroup<Stair>;
 	var sword: Sword;
 	var _hud:HUD;
-	var _money:Int = 0;
-	var _health:Int = 3;
+	var _money:Int;
+	var _health:Int;
 	var _nextLevel: NextLevel;
 	var _deadScreen: DeadScreen;
 	var _zoomCam:FlxZoomCamera;
-	var flashAux: Bool = true;
+	var flashAux: Bool;
 	var _correio: Correio;
 
 	override public function create():Void { 
+		_money = 0;
+		_health = 3;
+		flashAux = true;
+
 		_grpBox = new FlxTypedGroup<Box>();
 		_grpCoin = new FlxTypedGroup<Coin>();
 		_grpWater = new FlxTypedGroup<Water>();
@@ -73,8 +73,7 @@ class PlayState extends FlxState{
 		//Colocar o jogador e as outras coisas no lugar certo do mapa
 		_map.loadEntities(placeEntities, "entity");
 
-		//var sprite = new FlxSprite(_player.x +, _player.y);
-		//sprite.makeGraphic(16, 16, FlxColor.BLUE);
+	
 		add(_correio); //Se não adicionar o correio ele não atualiza e não funciona!!!!
 		add(_bkColor);
 		add(_bk);
@@ -102,22 +101,11 @@ class PlayState extends FlxState{
 		FlxG.camera.setScrollBoundsRect(0, 0, _map.width, _map.height);
 
 		FlxG.fullscreen = true;
+		FlxG.mouse.visible = false;
 		
 		super.create();
 	}
 
-
-	//A espada possui um bug do lado direito, por algum motivo ela parece menor do que deve ser...
-	//Resolver
-	function punch():Void {
-		FlxG.overlap(sword, _grpBox, playerAttackBox);
-        
-		if(FlxG.mouse.justPressed){
-			var m = new Message(_player, sword, Message.OP_ATTACK);
-			_correio.send(m);
-        }
-    }
-	
 	function placeEntities(entityName:String, entityData:Xml):Void{
 		var x:Int = Std.parseInt(entityData.get("x"));
 		var y:Int = Std.parseInt(entityData.get("y"));
@@ -154,10 +142,9 @@ class PlayState extends FlxState{
 		}
 	}
 
-	public function allColisions() {
+	public function allColisions():Void {
 		FlxG.collide(_player, _walls); //Colisão
 		FlxG.collide(_player, _grpBox);
-		//FlxG.collide(_player, FlxObject.FLOOR);
 		FlxG.collide(_grpBox, _walls);
 		FlxG.collide(_player, _grpRock);
 		FlxG.collide(_grpMonster, _walls);
@@ -165,27 +152,23 @@ class PlayState extends FlxState{
 		FlxG.collide(_grpMonster, _grpRock);
 		FlxG.collide(_grpMonster, _boardNext);
 		FlxG.collide(sword, _grpMonster, playerAttackBox);
-		//FlxG.collide(sword, _grpBox, playerAttackBox);
 
 	}
 
-	public function zoom() {
+	function zoom():Void {
 		if (FlxG.keys.justPressed.ONE) _zoomCam.targetZoom += -0.25; // zoom in
         if (FlxG.keys.justPressed.TWO) _zoomCam.targetZoom += 0.25; // zoom out
 		if(FlxG.mouse.wheel != 0) _zoomCam.targetZoom += (FlxG.mouse.wheel/10);
 	}
 
-	public function allOverlaps() {
-		FlxG.overlap(_player, _grpCoin, getCoin); // OK
-		FlxG.overlap(_player, _grpWater, waterLetter); //Ok
+	function allOverlaps():Void {
+		FlxG.overlap(_player, _grpCoin, getCoin);
+		FlxG.overlap(_player, _grpWater, waterLetter);
+		FlxG.overlap(_player, _grpMonster, playerHurts);
+		FlxG.overlap(_player, _boardNext, goNextLevel); 
+		FlxG.overlap(_player, _grpStair, climbStair);
 		
-		FlxG.overlap(_player, _grpMonster, playerHurts); // Ok
-		
-		FlxG.overlap(_player, _boardNext, goNextLevel); //OK
-		
-		FlxG.overlap(_player, _grpStair, climbStair); //ok
-		
-		if(FlxG.mouse.justPressed){ 
+		if(FlxG.mouse.justPressed || FlxG.keys.anyJustPressed([P, SPACE])){ 
 			//Mouse pressionado, chamar a espada
 			var m = new Message(_player, sword, Message.OP_ATTACK);
 			_correio.send(m);
@@ -215,6 +198,7 @@ class PlayState extends FlxState{
 		if(!_player.alive){ //Colocar mensagem que você morreu, etc...
 			_hud.updateHUD(0, _money);
 			_deadScreen.newDeath(_money);
+			FlxG.mouse.visible = true;
 		}
 	}
 
@@ -223,7 +207,7 @@ class PlayState extends FlxState{
 	----------------------------------------------
 	*/
 
-	public function climbStair(player: Entity, stair: Entity) {
+	function climbStair(player: Entity, stair: Entity):Void {
 		if(player.exists && player.alive && FlxG.keys.anyPressed([UP, W])){ //Colocar essa verificação na mensagem?
 			var m = new Message(stair, player, Message.OP_CLIMB, -120);
 			_correio.send(m);
@@ -231,16 +215,17 @@ class PlayState extends FlxState{
 
 	}
 
-	function  goNextLevel(player: Entity, winSpot: Entity) {
+	function goNextLevel(player: Entity, winSpot: Entity):Void {
 		if(player.exists && player.alive){
 			var m = new Message(player, winSpot, Message.OP_WINS, _money);
 			_correio.send(m);
 			_nextLevel.wins(_money);
+			FlxG.mouse.visible = true;
 		}
 	}
 
 
-	function playerHurts(player: Entity, monster: Entity){
+	function playerHurts(player: Entity, monster: Entity): Void{
 		if(player.alive && player.exists  && monster.alive && monster.exists){
 			var m = new Message(monster, player, Message.OP_HURT, 1);
 			_hud.updateHUD(Std.int(player.health - 1), _money);

@@ -14,7 +14,7 @@ class Message{
     public var op:Int;
     public var data:Float;
 
-    public function new(?from: Entity, ?to: Entity, ?op: Int, ?data:Float){
+    public function new(?from: Entity, ?to: Entity, ?op: Int, ?data:Float): Void{
         this.to = to;
         this.from = from;
         this.op = op;

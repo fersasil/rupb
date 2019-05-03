@@ -4,7 +4,7 @@ import flixel.effects.FlxFlicker;
 import flixel.FlxObject;
 
 class Skeleton extends Monster{
-    public function new(X:Float = 0, Y:Float = 0, D: Bool = true) {
+    public function new(X:Float = 0, Y:Float = 0, D: Bool = true): Void {
         super(X, Y, 0);
         health = 2;
 
@@ -25,7 +25,7 @@ class Skeleton extends Monster{
         //acceleration.y = 200;
     }
     
-    override public function onMessage(m: Message){
+    override public function onMessage(m: Message): Void{
         if(m.op == Message.OP_HURT){
             hurt(m.data);
             FlxFlicker.flicker(this, .4);

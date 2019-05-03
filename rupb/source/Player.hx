@@ -4,7 +4,6 @@ import flixel.effects.FlxFlicker;
 import flixel.util.FlxTimer;
 import flixel.FlxObject;
 import flixel.FlxG;
-import flixel.FlxSprite;
 
 class Player extends Entity{
     var flikers: Bool = true;
@@ -13,7 +12,7 @@ class Player extends Entity{
     public static inline var VELOCITY_X = 120;
     public static inline var VELOCITY_Y = 200;
 
-    override public function new(?X:Float = 0, ?Y: Float = 0, Parent:PlayState){
+    override public function new(?X:Float = 0, ?Y: Float = 0, Parent:PlayState): Void{
         super(X, Y);
 
         health = 3;
@@ -71,7 +70,7 @@ class Player extends Entity{
 	O hud é atualizado, porem. Caso a vida chegue a 0, o timer não é
 	acionado.
 	 */
-    override public function onMessage(m: Message){
+    override public function onMessage(m: Message): Void{
         if(m.op == Message.OP_HURT){
             if(flikers){
                 FlxFlicker.flicker(this);
@@ -119,7 +118,7 @@ class Player extends Entity{
         //MOVIMENTO
         if(_cima && this.isTouching(FlxObject.DOWN)){ //Só pula quando estiver encostando no chão
        // if(_cima && velocity.y == 0){
-            velocity.y = - VELOCITY_Y;
+            velocity.y = - VELOCITY_Y - 30;
             facing = FlxObject.UP;
         }
         if(_baixo){

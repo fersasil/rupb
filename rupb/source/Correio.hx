@@ -1,6 +1,5 @@
 package;
 
-import flixel.FlxG;
 import flixel.FlxObject;
 
 class Correio extends FlxObject{

@@ -58,9 +58,10 @@ class NextLevel extends FlxTypedGroup<FlxSprite>{
         });
 
         exists = false;
+        alive = false;
     }
 
-    public function wins(coin: Float = 0){
+    public function wins(coin: Float = 0): Void{
         //Adicionar o numero de moedas
         _infoText.text = "COINS: " + coin;
         //Recentralizar texto
@@ -68,6 +69,7 @@ class NextLevel extends FlxTypedGroup<FlxSprite>{
         //_infoText.y = _fundo.y + _deathText.height + _infoText.height + 15;
 
         exists = true;
+        alive = true;
         
     }
 

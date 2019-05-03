@@ -1,6 +1,5 @@
 package;
 
-import js.html.Animation;
 import flixel.util.FlxColor;
 import flixel.text.FlxText;
 import flixel.FlxG;
@@ -14,7 +13,7 @@ class HUD extends FlxTypedGroup<FlxSprite>{
     var _life:FlxSprite;
     var _coin:FlxSprite;
 
-    public function new(){
+    public function new(): Void{
         super();
         _fundo = new FlxSprite(); //poderia colocar a linha de baixo aqui com ponto
         _fundo.makeGraphic(FlxG.width, 20, FlxColor.BLACK);

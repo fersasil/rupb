@@ -5,7 +5,7 @@ import flixel.FlxObject;
 class OrcMasked extends Monster{
     var bool = true;
 
-    public function new(X:Float = 0, Y: Float = 0){
+    public function new(X:Float = 0, Y: Float = 0): Void{
         super(X, Y, 1);
 
         loadGraphic(AssetPaths.orcMasked_w13_h18__png, true, 13, 18);

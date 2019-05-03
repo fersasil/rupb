@@ -1,7 +1,5 @@
 package;
 
-import flixel.FlxSprite;
-
 class Rock extends Entity{
     public function new(X:Float = 0, Y:Float = 0): Void{
         super(X, Y);
