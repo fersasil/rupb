@@ -49,7 +49,7 @@ Temos também o *littleJumper*, apenas um hit pode derrotar esta criatura que se
 Ouch! Aparentemente ele acordou no fundo de algo que se parece com uma caverna! Mas tudo bem, temos uma espada conosco, podemos enfrentar todos os desáfios que esse lugar pode nos oferecer!
 Clack! Aparentemente a espada de nosso cavaleiro se partiu ao meio! Isso com certeza não ira ser bom...
 
-[Clique aqui para jogar](https://fersasil.github.io/GAMES-2019-T1/)
+[Clique aqui para jogar](https://fersasil.github.io/rupb/)
 
 
 
