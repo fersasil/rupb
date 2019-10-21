@@ -135,7 +135,7 @@ class MenuState extends FlxState{
         FlxG.switchState(new InstructionsState());
     }
     function goExit(): Void{
-        // Sys.exit(0);
+        Sys.exit(0);
     }
 
     function setCamera(){
