@@ -114,6 +114,10 @@ class PlayState extends FlxState{
 	function setCamera(){
 		_cam = new FlxCamera(-FlxG.width, -FlxG.height, FlxG.width, FlxG.height, 3);
 		_cam.follow(_player, LOCKON);
+
+		#if mobile
+			_cam.zoom = 11; //9 is okay
+		#end
  
 		FlxG.cameras.reset(_cam);
 		
@@ -121,7 +125,10 @@ class PlayState extends FlxState{
 		FlxG.camera.setScrollBoundsRect(0, 0, _map.width, _map.height);
 		
 		FlxG.fullscreen = true;
-		FlxG.mouse.visible = false;
+
+		#if (desktop || html5)
+			FlxG.mouse.visible = false;
+		#end
 	}
 
 	function placeEntities(entityName:String, entityData:Xml):Void{
@@ -181,11 +188,12 @@ class PlayState extends FlxState{
 		FlxG.overlap(_player, _boardNext, goNextLevel); 
 		FlxG.overlap(_player, _grpStair, climbStair);
 		
-		if(FlxG.mouse.justPressed || FlxG.keys.anyJustPressed([P, SPACE])){ 
-			//Mouse pressionado, chamar a espada
-			var m = new Message(_player, sword, Message.OP_ATTACK);
-			_correio.send(m);
-		}
+		//TODO reimplementação do android
+		// if(FlxG.mouse.justPressed || FlxG.keys.anyJustPressed([P, SPACE])){ 
+		// 	//Mouse pressionado, chamar a espada
+		// 	var m = new Message(_player, sword, Message.OP_ATTACK);
+		// 	_correio.send(m);
+		// }
 
 		//Verificar se há overlap entre a caixa e a espada
 		if(!FlxG.overlap(sword, _grpBox, function (sword, box){
@@ -211,7 +219,11 @@ class PlayState extends FlxState{
 			// _hud.updateHUD(0, _money);
 			_deadScreen.newDeath(_money);
 			_sndBackground.stop();
-			FlxG.mouse.visible = true;
+
+			#if (desktop || html5)
+				FlxG.mouse.visible = true;
+			#end
+
 		}
 	}
 
@@ -221,10 +233,13 @@ class PlayState extends FlxState{
 	*/
 
 	function climbStair(player: Entity, stair: Entity):Void {
+		//Todo Reimplementar subir escadas
+		#if (desktop|| html5)
 		if(player.exists && player.alive && FlxG.keys.anyPressed([UP, W])){ //Colocar essa verificação na mensagem?
 			var m = new Message(stair, player, Message.OP_CLIMB, -120);
 			_correio.send(m);
 		}
+		#end
 
 	}
 
@@ -234,7 +249,10 @@ class PlayState extends FlxState{
 			var m = new Message(player, winSpot, Message.OP_WINS, _money);
 			_correio.send(m);
 			_nextLevel.wins(_money);
-			FlxG.mouse.visible = true;
+
+			#if (desktop || html5)
+				FlxG.mouse.visible = true;
+			#end
 		}
 	}
 

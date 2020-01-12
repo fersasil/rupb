@@ -49,7 +49,9 @@ class CreditState extends FlxState{
     override public function update(elapsed:Float):Void{
 		super.update(elapsed);
 
+        #if (desktop|| html5)
         if(FlxG.keys.justPressed.UP) returnState();
+        #end
 	}
 
     function returnState(): Void{

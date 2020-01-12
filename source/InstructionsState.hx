@@ -51,7 +51,9 @@ class InstructionsState extends FlxState{
     override public function update(elapsed:Float):Void{
 		super.update(elapsed);
 
+        #if (desktop|| html5)
         if(FlxG.keys.justPressed.UP) goBack();
+        #end
 	}
 
     function goBack():Void{

@@ -50,6 +50,25 @@ class DeadScreen extends FlxTypedGroup<FlxSprite>{
         _btnMainMenu.x = _btnPlay.x + _btnPlay.width + 20;
         _btnMainMenu.y = _btnPlay.y;
 
+        #if mobile
+        _deathText.scale.x = .5;
+        _deathText.scale.y = .5;
+
+        _infoText.scale.x = .5;
+        _infoText.scale.y = .5;
+
+        _btnPlay.scale.x = .5;
+        _btnPlay.scale.y = .5;
+
+        _btnMainMenu.scale.x = .5;
+        _btnMainMenu.scale.y = .5;
+
+        _infoText.y = _background.y + _deathText.height + _infoText.height + 3;
+        _btnPlay.y = _infoText.y + _infoText.height + 5;
+        _btnMainMenu.y = _btnPlay.y;
+
+        #end
+
 
         //alive = false;
         add(_background);
@@ -68,13 +87,16 @@ class DeadScreen extends FlxTypedGroup<FlxSprite>{
 
     override public function update(elapsed:Float):Void{
         if(this.exists && this.alive){
-            verifyButtonSelected();
-            verifyButtonPressed();
+            #if (desktop|| html5)
+                verifyButtonSelected();
+                verifyButtonPressed();
+            #end
         }
         
         super.update(elapsed);
     }
 
+    #if (desktop|| html5)
     function verifyButtonPressed(): Void{
         if(FlxG.keys.justPressed.A)
             _btnSelected = ((_btnSelected - 1) + NUMBER_OF_BUTTONS) % NUMBER_OF_BUTTONS;
@@ -87,6 +109,8 @@ class DeadScreen extends FlxTypedGroup<FlxSprite>{
             else if(_btnSelected == SELECT_MENU) mainMenu();
         }
     }
+
+    #end
 
     function verifyButtonSelected(): Void{
         _btnPlay.scale.x = 1;

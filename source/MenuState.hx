@@ -34,26 +34,47 @@ class MenuState extends FlxState{
         _btnPlay.x = FlxG.width/2 - _btnPlay.width/2;
         _btnPlay.y = _mainText.y + _mainText.height + 10;
 
-        _btnInstructions.x = _btnPlay.x;
-        _btnInstructions.y = _btnPlay.y + 40;
+        // _btnInstructions.x = _btnPlay.x;
+        // _btnInstructions.y = _btnPlay.y + 40;
 
-        _btnCredits.x = _btnInstructions.x;
-        _btnCredits.y = _btnInstructions.y + 40;
+        // _btnCredits.x = _btnInstructions.x;
+        // _btnCredits.y = _btnInstructions.y + 40;
 
-        _btnExit.x = _btnInstructions.x;
-        _btnExit.y = _btnCredits.y + 40;
+        // _btnExit.x = _btnInstructions.x;
+        // _btnExit.y = _btnCredits.y + 40;
 
-        _btnPlay.scale.x = 1.5;
-        _btnPlay.scale.y = 1.5;
+        // _btnPlay.scale.x = 1.5;
+        // _btnPlay.scale.y = 1.5;
 
-        _btnExit.scale.x = 1.5;
-        _btnExit.scale.y = 1.5;
+        // _btnExit.scale.x = 1.5;
+        // _btnExit.scale.y = 1.5;
 
-        _btnCredits.scale.x = 1.5;
-        _btnCredits.scale.y = 1.5;
+        // _btnCredits.scale.x = 1.5;
+        // _btnCredits.scale.y = 1.5;
         
-        _btnInstructions.scale.x = 1.5;
-        _btnInstructions.scale.y = 1.5;
+        // _btnInstructions.scale.x = 1.5;
+        // _btnInstructions.scale.y = 1.5;
+
+        #if mobile
+        _btnPlay.scale.x = 3;
+        _btnPlay.scale.y = 3;
+
+        // _btnExit.scale.x = 10;
+        // _btnExit.scale.y = 10;
+
+        // _btnCredits.scale.x = 10;
+        // _btnCredits.scale.y = 10;
+        
+        // _btnInstructions.scale.x = 10;
+        // _btnInstructions.scale.y = 10;
+        // _mainText.scale.x = 10;
+        // _mainText.scale.y = 10;
+
+        #end
+
+        _btnCredits.kill();
+        _btnExit.kill();
+        _btnInstructions.kill();
 
 
         add(_btnCredits);
@@ -63,7 +84,10 @@ class MenuState extends FlxState{
         add(_mainText);
 
         FlxG.fullscreen = true;
-		FlxG.mouse.visible = false;
+
+        #if ((desktop || html5) || html5)
+		    FlxG.mouse.visible = false;
+        #end
 
         setCamera();
         
@@ -74,10 +98,14 @@ class MenuState extends FlxState{
     override public function update(elapsed:Float):Void{
 		super.update(elapsed);
         
-        verifyButtonSelected();
-        verifyButtonPressed();
+        
+        #if (desktop|| html5)
+            verifyButtonSelected();
+            verifyButtonPressed();
+        #end
 	}
 
+    #if (desktop|| html5)
     function verifyButtonPressed(): Void{
         if(FlxG.keys.justPressed.W)
             _btnSelected = ((_btnSelected - 1) + NUMBER_OF_BUTTONS) % NUMBER_OF_BUTTONS;
@@ -92,6 +120,7 @@ class MenuState extends FlxState{
             else if(_btnSelected == SELECT_EXIT) goExit();
         }
     }
+    #end
 
     function verifyButtonSelected(): Void{
         _btnPlay.scale.x = 1.5;
@@ -135,7 +164,7 @@ class MenuState extends FlxState{
         FlxG.switchState(new InstructionsState());
     }
     function goExit(): Void{
-        Sys.exit(0);
+        // Sys.exit(0);
     }
 
     function setCamera(){
@@ -143,8 +172,12 @@ class MenuState extends FlxState{
  
 		FlxG.cameras.reset(_cam);
 
-		FlxG.fullscreen = true;
-		FlxG.mouse.visible = true;
+        FlxG.fullscreen = true;
+        
+        #if (desktop || html5)
+            FlxG.mouse.visible = true;
+        #end
+        
 	}
 
 }
