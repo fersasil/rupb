@@ -10,9 +10,6 @@ import flixel.system.FlxSound;
 
 import flixel.addons.editors.ogmo.FlxOgmoLoader;
 
-//ARRUMAR PULO NA BOX ?
-//ARRUMAR ZOOM
-//ARRUMAR MOEDA
 
 class PlayState extends FlxState{
 	var _player:Player;
@@ -34,7 +31,7 @@ class PlayState extends FlxState{
 	var _nextLevel: NextLevel;
 	var _deadScreen: DeadScreen;
 	var flashAux: Bool;
-	var _correio: Correio;
+	var mail: Correio;
 	var _cam:FlxCamera;
 
 	//Gambiarra hud
@@ -54,10 +51,10 @@ class PlayState extends FlxState{
 		_grpRock = new FlxTypedGroup<Rock>();
 		_grpStair = new FlxTypedGroup<Stair>();
 
-		_correio = new Correio();
+		mail = new Correio();
 		_hud = new HUD();
 		_deadScreen = new DeadScreen();
-		_player = new Player(0, 0, this);
+		_player = new Player(0, 0, mail);
 		_map = new FlxOgmoLoader(AssetPaths.room_002__oel);
 		_boardNext = new BoardNext();
 		_nextLevel = new NextLevel();
@@ -85,10 +82,10 @@ class PlayState extends FlxState{
 		//Colocar o jogador e as outras coisas no lugar certo do mapa
 		_map.loadEntities(placeEntities, "entity");
 
-		
+		_player.setWeapon(sword);
 
 	
-		add(_correio); //Se não adicionar o correio ele não atualiza e não funciona!!!!
+		add(mail); //Se não adicionar o correio ele não atualiza e não funciona!!!!
 		add(_bkColor);
 		add(_bk);
 		add(_walls);
@@ -118,16 +115,19 @@ class PlayState extends FlxState{
 		#if mobile
 			_cam.zoom = 11; //9 is okay
 		#end
+
+		_cam.zoom = 7;
  
 		FlxG.cameras.reset(_cam);
 		
 
 		FlxG.camera.setScrollBoundsRect(0, 0, _map.width, _map.height);
 		
-		FlxG.fullscreen = true;
+		// FlxG.fullscreen = false;
+		// FlxG.debugger.visible = true;
 
 		#if (desktop || html5)
-			FlxG.mouse.visible = false;
+			// FlxG.mouse.visible = true;
 		#end
 	}
 
@@ -192,14 +192,14 @@ class PlayState extends FlxState{
 		// if(FlxG.mouse.justPressed || FlxG.keys.anyJustPressed([P, SPACE])){ 
 		// 	//Mouse pressionado, chamar a espada
 		// 	var m = new Message(_player, sword, Message.OP_ATTACK);
-		// 	_correio.send(m);
+		// 	mail.send(m);
 		// }
 
 		//Verificar se há overlap entre a caixa e a espada
 		if(!FlxG.overlap(sword, _grpBox, function (sword, box){
 			var m = new Message(sword, box, Message.OP_KILL);
 			m.data = _player.movimentSide ? 1 : 0;
-			_correio.send(m);
+			mail.send(m);
 		})){
 			sword.kill();
 		}
@@ -237,7 +237,7 @@ class PlayState extends FlxState{
 		#if (desktop|| html5)
 		if(player.exists && player.alive && FlxG.keys.anyPressed([UP, W])){ //Colocar essa verificação na mensagem?
 			var m = new Message(stair, player, Message.OP_CLIMB, -120);
-			_correio.send(m);
+			mail.send(m);
 		}
 		#end
 
@@ -247,7 +247,7 @@ class PlayState extends FlxState{
 		if(player.exists && player.alive){
 			_sndBackground.stop();
 			var m = new Message(player, winSpot, Message.OP_WINS, _money);
-			_correio.send(m);
+			mail.send(m);
 			_nextLevel.wins(_money);
 
 			#if (desktop || html5)
@@ -261,20 +261,20 @@ class PlayState extends FlxState{
 		if(player.alive && player.exists  && monster.alive && monster.exists){
 			var m = new Message(monster, player, Message.OP_HURT, 1);
 			_hud.updateHUD(Std.int(player.health - 1), _money);
-			_correio.send(m);
+			mail.send(m);
 		}
 	}
 	function waterLetter(player: Entity, water: Entity): Void {
 		if(player.alive && player.exists  && water.alive && water.exists){
 			var m = new Message(water, player, Message.OP_KILL);
-			_correio.send(m);
+			mail.send(m);
 		}
 	}
 
 	function getCoin(player: Entity, coin: Entity): Void {
 		if(player.alive && player.exists && coin.alive && coin.exists){
 			var m = new Message(player, coin, Message.OP_KILL);
-			_correio.send(m);
+			mail.send(m);
 			_hud.updateHUD(Std.int(_player.health), ++_money);
 		}
 	}
@@ -282,7 +282,7 @@ class PlayState extends FlxState{
 	function playerAttackBox(sword: Entity, enemy: Entity): Void{
 		if(enemy.alive && enemy.exists){
 			var m = new Message(sword, enemy, Message.OP_HURT, 1);
-			_correio.send(m);
+			mail.send(m);
 		}
 	}
 }

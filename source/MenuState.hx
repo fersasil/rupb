@@ -56,8 +56,8 @@ class MenuState extends FlxState{
         // _btnInstructions.scale.y = 1.5;
 
         #if mobile
-        _btnPlay.scale.x = 3;
-        _btnPlay.scale.y = 3;
+        _btnPlay.scale.x = 7;
+        _btnPlay.scale.y = 7;
 
         // _btnExit.scale.x = 10;
         // _btnExit.scale.y = 10;
@@ -83,10 +83,10 @@ class MenuState extends FlxState{
         add(_btnInstructions);
         add(_mainText);
 
-        FlxG.fullscreen = true;
+        // FlxG.fullscreen = true;
 
         #if ((desktop || html5) || html5)
-		    FlxG.mouse.visible = false;
+		    FlxG.mouse.visible = true;
         #end
 
         setCamera();

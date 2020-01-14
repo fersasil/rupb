@@ -9,22 +9,42 @@ import flixel.input.touch.FlxTouch;
 import flixel.math.FlxPoint;
 
 class Player extends Entity {
+	var start = false;
+	var count = 0;
 	var flikers:Bool = true;
 	var climbing:Bool = false;
 	var _sndDamage:FlxSound;
 	var _sndJump:FlxSound;
 	var jumping:Bool = false;
+	var justStopedMoving: Bool = false;
+	var anterior: Bool;
+	var clickSign: Bool;
+
+	var clickHandler: ClickHandler;
 
 	var _screenFirstPress = true;
 	var _screenPressedPosition:FlxPoint;
+	var canAttack: Bool;
+
+	var weapon:Sword;
+
+	var _mail:Correio;
 
 	public var timer:FlxTimer;
 
-	public static inline var WALK_VELOCITY = 70;
+	public static inline var WALK_VELOCITY = 90;
 	public static inline var JUMP_VELOCITY = 300;
 
-	override public function new(?X:Float = 0, ?Y:Float = 0, Parent:PlayState):Void {
+	private static inline var JUST_RELEASED = 2;
+	private static inline var HOLDING = 1;
+	private static inline var NOT_HOLDING = 0;
+
+
+
+
+	override public function new(?X:Float = 0, ?Y:Float = 0, mail:Correio):Void {
 		super(X, Y);
+
 
 		health = 3;
 		movimentSide = true; // 0 esquerda 1 direta
@@ -36,10 +56,10 @@ class Player extends Entity {
 		setFacingFlip(FlxObject.RIGHT, false, false);
 		setFacingFlip(FlxObject.LEFT, true, false);
 
-		animation.add("IDLE", [0, 1, 2, 3, 4, 5, 6], 9, true); // 9 ou 8
+		animation.add("IDLE", [0, 1, 2, 3, 4, 5, 6], 8, true); // 9 ou 8
 		animation.add("JUMP", [7, 8, 9, 10, 11], 6, false);
 		animation.add("SLASH", [12, 13, 14, 15], 10, false);
-		animation.add("WALK", [16, 17, 18], 10, false);
+		animation.add("WALK", [16, 17, 18], 13, false);
 		animation.add("HURT", [19, 20, 21, 22, 23, 24], 10, false);
 		animation.add("CLIMB", [22], 10, false);
 		animation.add("DUCK", [24, 25, 26, 27, 28, 29], 10, false);
@@ -47,9 +67,12 @@ class Player extends Entity {
 		_sndDamage = FlxG.sound.load(AssetPaths.damage__wav);
 		_sndJump = FlxG.sound.load(AssetPaths.jump__wav);
 
+
 		// IDLE 1-6
 		// JUMP 7-11
 		// Criar animações
+		// animation.add("WALK", [1, 2, 3, 4], 10, false);
+
 		/*animation.add("WALK", [1, 2, 3, 4], 10, false);
 			animation.add("JUMP", [5, 6], 6, false);
 
@@ -57,6 +80,8 @@ class Player extends Entity {
 			animation.add("CLIMB", [19, 20, 21, 22], 6, true); */
 
 		timer = new FlxTimer();
+
+		_mail = mail;
 
 		// FISICA DO PERSONAGEM
 		drag.x = drag.y = 1600;
@@ -69,13 +94,52 @@ class Player extends Entity {
 
 		updateHitbox();
 
+		clickHandler = new ClickHandler();
+
+
 		// animation.play("IDLE");
 	}
 
 	override public function update(elapsed:Float):Void {
 		#if (desktop || html5)
 		keyboard_movement();
-		mouse_touch_movement();
+		
+		function oi() {
+			
+			if(FlxG.mouse.justPressed){
+				clickHandler.newClick();
+			}
+			
+			if(clickHandler.click){
+				mouse_touch_movement();
+				attack_touch();
+			}
+
+			//ninguem usando o mutex
+			if(!clickHandler.inUseMutex()) clickHandler.click = false;
+
+			
+		}
+
+		
+		
+		oi();
+		// if(FlxG.mouse.justPressed){
+		// 		start = true;
+		// 	// FlxG.log.add(FlxG.mouse.justReleased);
+		// }
+		// else if(count < 4 && start){
+		// 	if(FlxG.mouse.justReleased)
+		// 		FlxG.log.add("Lucky");
+
+		// 	// FlxG.log.add("antes");
+		// 	count++;
+		// }
+		// else {
+		// 	count = 0;
+		// 	start = false;
+		// }
+		
 		#elseif mobile
 		mobile_movement();
 		#end
@@ -152,7 +216,7 @@ class Player extends Entity {
 			movimentSide = false;
 			facing = FlxObject.LEFT;
 		}
-		if (!_cima && !_baixo && !_esquerda && !_direita && climbing) {
+		if (!_cima && !_baixo && !_esquerda && !_direita && !climbing) {
 			animation.play("IDLE");
 		}
 
@@ -171,39 +235,67 @@ class Player extends Entity {
 				}
 			}
 		}
+
+		if (this.exists && this.alive && FlxG.keys.anyPressed([UP, W])) {
+			var m = new Message(this, weapon, Message.OP_ATTACK);
+			_mail.send(m);
+		}
 	}
 	#end
 
 	#if mobile
 	function mobile_movement() {
+		
 		for (touch in FlxG.touches.list) {
-			mouse_touch_movement(touch);
+
+			// if(touch.touchPointID > 0) break;
+				
+			if(touch.justPressed){
+				clickHandler.newClick();
+			}
+			
+			if(clickHandler.click){
+				mouse_touch_movement(touch);
+				attack_touch();
+			}
+
+			//ninguem usando o mutex
+			if(!clickHandler.inUseMutex()) clickHandler.click = false;
 		}
 	}
 	#end
 
-	function mouse_touch_movement(touch:FlxTouch = null) {
+	function mouse_touch_movement(touch:FlxTouch = null):Int {
+		if(!clickHandler.getMutex(0)){
+			// FlxG.log.add("Mouse Não conseguiu o mutex");
+			
+			return 0;
+		}
+
 		var justReleased:Bool;
 		var pressed:Bool;
 		var touchPosition:FlxPoint;
+		var justPressed: Bool;
 
 		#if (desktop || html5)
-		touchPosition = FlxG.mouse.getWorldPosition();
-		justReleased = FlxG.mouse.justReleased;
-		pressed = FlxG.mouse.pressed;
+			touchPosition = FlxG.mouse.getWorldPosition();
+			justReleased = FlxG.mouse.justReleased;
+			justPressed = FlxG.mouse.justPressed;
+			pressed = FlxG.mouse.pressed;
 		#elseif mobile
-		touchPosition = touch.getWorldPosition();
-		justReleased = touch.justReleased;
-		pressed = touch.pressed;
+			touchPosition = touch.getWorldPosition();
+			justReleased = touch.justReleased;
+			justPressed = touch.justPressed;
+			pressed = touch.pressed;
 		#end
 
-		if (justReleased) {
-			_screenFirstPress = true;
-			_screenPressedPosition = null;
-			this.velocity.set(0, 0);
-		}
+		
 
+
+	
 		if (pressed) {
+			clickHandler.count++;
+
 			if (_screenFirstPress) {
 				_screenFirstPress = false;
 				_screenPressedPosition = touchPosition;
@@ -221,9 +313,16 @@ class Player extends Entity {
 
 			var dbp = distanceBetweenTwoPoints(_screenPressedPosition, touchPosition);
 
+			clickHandler.setUse(true);
+
 			if (dbp < 10) {
-				return;
+				anterior = justStopedMoving;
+				justStopedMoving = false;
+				
+				return HOLDING;
 			}
+
+
 
 			function getmovementAngle(touchPoint:FlxPoint):Float {
 				var radians = Math.atan2(touchPoint.y - _screenPressedPosition.y, touchPoint.x - _screenPressedPosition.x);
@@ -232,20 +331,15 @@ class Player extends Entity {
 			}
 
 			function movethis(degree:Float, speed:Float):Void {
-				var angle = - degree;
+				var angle = -degree;
 
-                var _baixo:Bool = angle < -160 && degree > -30 ? true : false;
+				var _baixo:Bool = angle < -160 && degree > -30 ? true : false;
 				var _cima:Bool = angle > 20 && angle < 150 ? true : false;
 
 				var _esquerda:Bool = angle < 179 && angle > 90 ? true : false;
-                var _direita:Bool = angle < 90 && angle > -30 ? true : false;
-                
+				var _direita:Bool = angle < 90 && angle > -30 ? true : false;
 
-                FlxG.log.add(_cima);
-
-
-                if (_cima && this.isTouching(FlxObject.DOWN)) { // Só pula quando estiver encostando no chão
-                    FlxG.log.add("JUMP");
+				if (_cima && this.isTouching(FlxObject.DOWN)) { // Só pula quando estiver encostando no chão
 					velocity.y = -JUMP_VELOCITY - 30;
 					facing = FlxObject.UP;
 					_sndJump.play();
@@ -258,13 +352,15 @@ class Player extends Entity {
 					velocity.x = WALK_VELOCITY;
 					movimentSide = true;
 					facing = FlxObject.RIGHT;
+					animation.play("WALK");
 				}
 				if (_esquerda) {
 					velocity.x = -WALK_VELOCITY;
 					movimentSide = false;
 					facing = FlxObject.LEFT;
+					animation.play("WALK");
 				}
-				if (!_cima && !_baixo && !_esquerda && !_direita && climbing) {
+				if (!_cima && !_baixo && !_esquerda && !_direita && !climbing) {
 					animation.play("IDLE");
 				}
 
@@ -274,30 +370,96 @@ class Player extends Entity {
 				}
 			}
 
-			// Retorna um dos anglos abaixo
-			// 0 - 45 - 90 - 135 - 180 -
-			function getRealAngle(angle:Float) {
-                // 20 - angle - 20
-                // FlxG.log.add(angle);
-
-				if (angle > -20 && angle < 20)
-				    return 0.0;
-
-				// // if(angle < -20 && angle > -50) return angle;
-
-				if(angle > -80 && angle < -100) return -90.0;
-				// // if(angle > -115 && angle < -135) return 135.0;
-				// if (angle >= 135)
-				// 	return 180.0;
-				// else
-                return angle;
-			}
-
-            var angle = getmovementAngle(touchPosition);
-            FlxG.log.add(angle);
+			var angle = getmovementAngle(touchPosition);
 
 			// angle = getRealAngle(angle);
-            movethis(angle, WALK_VELOCITY);
+			movethis(angle, WALK_VELOCITY);
+
+			anterior = justStopedMoving;
+			justStopedMoving = false;
+
+			return HOLDING;
 		}
+
+		
+		if (justReleased) {
+			_screenFirstPress = true;
+			_screenPressedPosition = null;
+			this.velocity.set(0, 0);
+			
+			// FlxG.log.add("P1");
+			anterior = justStopedMoving;
+			justStopedMoving = true;
+
+			clickHandler.setUse(false);
+			clickHandler.setJustReleased(true);
+			clickHandler.freeMutex();
+
+			return NOT_HOLDING;
+		}
+
+		// clickHandler.setNotUsing(false);
+
+		anterior = justStopedMoving;
+		return NOT_HOLDING;
+
+
+		
+	}
+
+	function attack_touch(touch:FlxTouch = null) {
+		if(!clickHandler.getMutex(1)) {
+			return;
+		}
+
+		// FlxG.log.add("conseguiu o mutex");
+
+		
+
+		// var justReleased: Bool;
+		// var justPressed: Bool;
+		// var pressed: Bool;
+
+
+		// #if mobile
+		// 	justReleased = touch.justReleased;
+		// 	justPressed = touch.justPressed;
+		// 	pressed = touch.pressed;
+		// #elseif (desktop || html5)
+		// 	justReleased = FlxG.mouse.justReleased;
+		// 	justPressed = FlxG.mouse.justPressed;
+		// 	pressed = FlxG.mouse.pressed;
+		// #end
+		//TD
+		
+
+		if(clickHandler.count > 6) {
+		// 	// FlxG.log.add("Estava em loop: " + clickHandler.count);
+			clickHandler.cleanCount();
+			clickHandler.freeMutex();
+			clickHandler.click = false;
+
+			return;
+		}
+
+		clickHandler.cleanCount();
+		
+
+		// if(clickHandler.justReleased) {
+		// 	clickHandler.click = false;
+		// 	clickHandler.justReleased = false;
+		// 	clickHandler.freeMutex();
+		// 	return;
+		// }
+
+		var m = new Message(this, weapon, Message.OP_ATTACK);
+		_mail.send(m);
+
+		clickHandler.click = false;
+		clickHandler.freeMutex();
+	}
+
+	public function setWeapon(weapon:Sword) {
+		this.weapon = weapon;
 	}
 }
