@@ -34,7 +34,6 @@ class PlayState extends FlxState{
 	var mail: Correio;
 	var _cam:FlxCamera;
 
-	//Gambiarra hud
 	var _count = 0;
 	var _scroll: Float;
 	var _sndBackground: FlxSound;
@@ -54,7 +53,7 @@ class PlayState extends FlxState{
 		mail = new Correio();
 		_hud = new HUD();
 		_deadScreen = new DeadScreen();
-		_player = new Player(0, 0, mail);
+		_player = new Player(0, 0);
 		_map = new FlxOgmoLoader(AssetPaths.room_002__oel);
 		_boardNext = new BoardNext();
 		_nextLevel = new NextLevel();
@@ -83,13 +82,13 @@ class PlayState extends FlxState{
 		_map.loadEntities(placeEntities, "entity");
 
 		_player.setWeapon(sword);
+		_player.setMail(mail);
 
 	
 		add(mail); //Se não adicionar o correio ele não atualiza e não funciona!!!!
 		add(_bkColor);
 		add(_bk);
 		add(_walls);
-		//add(_grpStair);
 		add(_player);
 		add(_grpBox);
 		add(_grpCoin);
@@ -232,15 +231,8 @@ class PlayState extends FlxState{
 	----------------------------------------------
 	*/
 
-	function climbStair(player: Entity, stair: Entity):Void {
-		//Todo Reimplementar subir escadas
-		#if (desktop|| html5)
-		if(player.exists && player.alive && FlxG.keys.anyPressed([UP, W])){ //Colocar essa verificação na mensagem?
-			var m = new Message(stair, player, Message.OP_CLIMB, -120);
-			mail.send(m);
-		}
-		#end
-
+	function climbStair(player: Player, stair: Entity):Void {
+		player.canClimb(stair);
 	}
 
 	function goNextLevel(player: Entity, winSpot: Entity):Void {
@@ -279,10 +271,13 @@ class PlayState extends FlxState{
 		}
 	}
 
+	//Todo: Refatorar
 	function playerAttackBox(sword: Entity, enemy: Entity): Void{
 		if(enemy.alive && enemy.exists){
 			var m = new Message(sword, enemy, Message.OP_HURT, 1);
 			mail.send(m);
 		}
 	}
+
+
 }
