@@ -1,5 +1,7 @@
 package;
 
+import screen.CreditState;
+import screen.InstructionsState;
 import flixel.FlxState;
 import flixel.text.FlxText;
 import flixel.FlxG;
@@ -177,7 +179,6 @@ class MenuState extends FlxState{
         #if (desktop || html5)
             FlxG.mouse.visible = true;
         #end
-        
 	}
 
 }

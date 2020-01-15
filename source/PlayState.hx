@@ -1,5 +1,18 @@
 package;
 
+import monster.OrcMasked;
+import monster.Skeleton;
+import helperClass.HUD;
+import screen.DeadScreen;
+import screen.NextLevel;
+import monster.Monster;
+import screen.BoardNext;
+import player.*;
+import object.*;
+
+import helperClass.Message;
+import helperClass.Entity;
+import helperClass.Mail;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxState;
@@ -31,7 +44,7 @@ class PlayState extends FlxState{
 	var _nextLevel: NextLevel;
 	var _deadScreen: DeadScreen;
 	var flashAux: Bool;
-	var mail: Correio;
+	var mail: Mail;
 	var _cam:FlxCamera;
 
 	var _count = 0;
@@ -50,7 +63,7 @@ class PlayState extends FlxState{
 		_grpRock = new FlxTypedGroup<Rock>();
 		_grpStair = new FlxTypedGroup<Stair>();
 
-		mail = new Correio();
+		mail = new Mail();
 		_hud = new HUD();
 		_deadScreen = new DeadScreen();
 		_player = new Player(0, 0);
@@ -58,8 +71,6 @@ class PlayState extends FlxState{
 		_boardNext = new BoardNext();
 		_nextLevel = new NextLevel();
 		sword = new Sword();
-
-		// FlxG.sound.playMusic("assets/music/flags.ogg", 0.1, true);
 
 		if (FlxG.sound.music == null){
 			_sndBackground = FlxG.sound.play(AssetPaths.flags__ogg, 0.1, true);
@@ -112,22 +123,12 @@ class PlayState extends FlxState{
 		_cam.follow(_player, LOCKON);
 
 		#if mobile
-			_cam.zoom = 11; //9 is okay
-		#end
-
+		_cam.zoom = 11; //9 is okay
 		_cam.zoom = 7;
+		#end
  
 		FlxG.cameras.reset(_cam);
-		
-
 		FlxG.camera.setScrollBoundsRect(0, 0, _map.width, _map.height);
-		
-		// FlxG.fullscreen = false;
-		// FlxG.debugger.visible = true;
-
-		#if (desktop || html5)
-			// FlxG.mouse.visible = true;
-		#end
 	}
 
 	function placeEntities(entityName:String, entityData:Xml):Void{
@@ -167,7 +168,7 @@ class PlayState extends FlxState{
 	}
 
 	public function allColisions():Void {
-		FlxG.collide(_player, _walls); //Colisão
+		FlxG.collide(_player, _walls);
 		FlxG.collide(_player, _grpBox);
 		FlxG.collide(_grpBox, _walls);
 		FlxG.collide(_player, _grpRock);
@@ -187,13 +188,6 @@ class PlayState extends FlxState{
 		FlxG.overlap(_player, _boardNext, goNextLevel); 
 		FlxG.overlap(_player, _grpStair, climbStair);
 		
-		//TODO reimplementação do android
-		// if(FlxG.mouse.justPressed || FlxG.keys.anyJustPressed([P, SPACE])){ 
-		// 	//Mouse pressionado, chamar a espada
-		// 	var m = new Message(_player, sword, Message.OP_ATTACK);
-		// 	mail.send(m);
-		// }
-
 		//Verificar se há overlap entre a caixa e a espada
 		if(!FlxG.overlap(sword, _grpBox, function (sword, box){
 			var m = new Message(sword, box, Message.OP_KILL);
@@ -202,18 +196,15 @@ class PlayState extends FlxState{
 		})){
 			sword.kill();
 		}
-		//punch(); //ok -> talvez mudar p/ collision
 	}
-
-	
 
 	override public function update(elapsed:Float):Void{
 		super.update(elapsed);
 
 		allColisions();		
 		allOverlaps();
-
-
+		
+		//Todo mover para uma função
 		if(!_player.alive){ //Colocar mensagem que você morreu, etc...
 			// _hud.updateHUD(0, _money);
 			_deadScreen.newDeath(_money);
@@ -248,7 +239,6 @@ class PlayState extends FlxState{
 		}
 	}
 
-
 	function playerHurts(player: Entity, monster: Entity): Void{
 		if(player.alive && player.exists  && monster.alive && monster.exists){
 			var m = new Message(monster, player, Message.OP_HURT, 1);
@@ -278,6 +268,4 @@ class PlayState extends FlxState{
 			mail.send(m);
 		}
 	}
-
-
 }
