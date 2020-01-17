@@ -1,7 +1,6 @@
 package;
 
 import flixel.util.FlxTimer;
-import flixel.ui.FlxAnalog;
 import flixel.util.FlxColor;
 import flixel.ui.FlxBar;
 import monster.OrcMasked;
@@ -50,15 +49,24 @@ class PlayState extends FlxState{
 	var flashAux: Bool;
 	var mail: Mail;
 	var _cam:FlxCamera;
+	var timer = new FlxTimer();
 
 	var _count = 0;
 	var _scroll: Float;
 	var _sndBackground: FlxSound;
 
+	#if mobile
+		public static inline var CAM_ZOOM = 7;
+	#else
+		public static inline var CAM_ZOOM = 7;
+	#end
+
+
 	override public function create():Void { 
 		_money = 0;
 		_health = 3;
 		flashAux = true;
+		timer = new FlxTimer();
 
 		_grpBox = new FlxTypedGroup<Box>();
 		_grpCoin = new FlxTypedGroup<Coin>();
@@ -91,7 +99,6 @@ class PlayState extends FlxState{
 		_walls.setTileProperties(92, FlxObject.NONE); //Não colidir com escada
 		_walls.setTileProperties(109, FlxObject.NONE); //Escada inicio
 		_walls.setTileProperties(75, FlxObject.NONE); //Escada fim
-
 
 		//Colocar o jogador e as outras coisas no lugar certo do mapa
 		_map.loadEntities(placeEntities, "entity");
@@ -127,23 +134,10 @@ class PlayState extends FlxState{
 		_cam = new FlxCamera(-FlxG.width, -FlxG.height, FlxG.width, FlxG.height, 3);
 		_cam.follow(_player, LOCKON);
 
-		#if mobile
-		_cam.zoom = 11; //9 is okay
-		_cam.zoom = 7;
-		#end
-		// _cam.zoom = 7;
+		_cam.zoom = CAM_ZOOM;
 
 		_cam.setScrollBoundsRect(0, 0, _map.width, _map.height);
 
-
-		var timer = new FlxTimer();
-
-	
-		// _cam.totalScaleY
-		// FlxG.debugger.visible = true;
-
-
- 
 		FlxG.cameras.reset(_cam);
 
 		_hud.changePosition(_cam);
@@ -263,6 +257,7 @@ class PlayState extends FlxState{
 		}
 	}
 
+	//TODO: pass to player class;
 	function playerHurts(player: Entity, monster: Entity): Void{
 		if(player.alive && player.exists  && monster.alive && monster.exists){
 			var m = new Message(monster, player, Message.OP_HURT, 1);
@@ -270,6 +265,8 @@ class PlayState extends FlxState{
 			mail.send(m);
 		}
 	}
+
+	//TODO: Pass to player class;
 	function waterLetter(player: Entity, water: Entity): Void {
 		if(player.alive && player.exists  && water.alive && water.exists){
 			var m = new Message(water, player, Message.OP_KILL);
@@ -277,6 +274,7 @@ class PlayState extends FlxState{
 		}
 	}
 
+	//TODO: Pass to player class;
 	function getCoin(player: Entity, coin: Entity): Void {
 		if(player.alive && player.exists && coin.alive && coin.exists){
 			var m = new Message(player, coin, Message.OP_KILL);

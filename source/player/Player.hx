@@ -35,6 +35,7 @@ class Player extends Entity {
 	public static inline var WALK_VELOCITY = 90;
 	public static inline var JUMP_VELOCITY = 250;
 	public static inline var ANIMATION_IDLE_TIME = .5;
+	public static inline var CLIMB_SPEED = 60;
 
 
 	override public function new(?X:Float = 0, ?Y:Float = 0, ?mail:Mail):Void {
@@ -51,7 +52,7 @@ class Player extends Entity {
 		setFacingFlip(FlxObject.RIGHT, false, false);
 		setFacingFlip(FlxObject.LEFT, true, false);
 		animation.add("IDLE", [0, 1, 2, 3, 4, 5, 6], 8, true); // 9 ou 8
-		animation.add("JUMP", [7, 8, 9, 10, 11], 6, false);
+		animation.add("JUMP", [7, 8, 9, 10, 11], 12, false);
 		animation.add("SLASH", [12, 13, 14, 15], 10, false);
 		animation.add("WALK", [16, 17, 18], 13, false);
 		animation.add("HURT", [19, 20, 21, 22, 23, 24], 10, false);
@@ -151,9 +152,22 @@ class Player extends Entity {
 		var _left:Bool = FlxG.keys.anyPressed([LEFT, A]) ? true : false;
 		var _right:Bool = FlxG.keys.anyPressed([RIGHT, D]) ? true : false;
 		#end
+
+
+		//TODO add a falling animation to it and ajust it to only stop when it 
+		// touch the ground or something
+		if(animation.name == "JUMP" && this.isTouching(FlxObject.DOWN)){
+			FlxG.log.add("OI");
+			animation.reset();
+		}
+
+		FlxG.watch.add(animation, "name", "name animation");
+
+
 		if (_up && this.isTouching(FlxObject.DOWN)) { // Só pula quando estiver encostando no chão
 			velocity.y = -JUMP_VELOCITY - 30;
 			facing = FlxObject.UP;
+			animation.play("JUMP");
 			_sndJump.play();
 		}
 		if (_down) {
@@ -313,10 +327,15 @@ class Player extends Entity {
 		MOBILE FUNCTIONS HELPERS
 	**/
 	function mobileClimb(stair) {
-		var upTouch = FlxG.touches.getFirst().pressed;
+		var touch = FlxG.touches.getFirst();
 
-		if (this.exists && this.alive && upTouch) { // Colocar essa verificação na mensagem?
-			var m = new Message(stair, this, Message.OP_CLIMB, -60);
+		if(touch == null) return;
+
+		var upTouch = touch.pressed;
+
+
+		if (this.exists && this.alive && upTouch) {
+			var m = new Message(stair, this, Message.OP_CLIMB, -CLIMB_SPEED);
 			_mail.send(m);
 		}
 	}
