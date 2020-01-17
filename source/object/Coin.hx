@@ -8,6 +8,10 @@ import flixel.system.FlxSound;
 
 class Coin extends Entity{
     var _sndCoin:FlxSound;
+    public static inline var WIDTH = 6;
+	public static inline var HEIGHT = 7;
+    
+
 
     public function new(X: Float = 0, Y:Float = 0): Void{
         super(X, Y);

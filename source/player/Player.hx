@@ -70,13 +70,9 @@ class Player extends Entity {
 		drag.x = drag.y = 1600;
 		acceleration.y = 1000; // Cria Gravidade
 		this.maxVelocity.set(120, 200);
-
-		// TEMPORARIO, REDIMENSIONA IMAGEM DO JOGADOR
-		setGraphicSize(16, 20);
-		setSize(16, 20);
-
-		// scale.x = .4;
-		// scale.y = .5;
+		
+		scale.x = .5;
+		scale.y = .6;		
 
 		updateHitbox();
 
@@ -210,7 +206,7 @@ class Player extends Entity {
 			if (this.exists && this.alive && FlxG.keys.anyPressed([UP, W])) { // Colocar essa verificação na mensagem?
 				var m = new Message(stair, this, Message.OP_CLIMB, -120);
 				_mail.send(m);
-		}
+			}
 		#end
 	}
 
@@ -248,6 +244,8 @@ class Player extends Entity {
 
 			if (clickHandler.click) {
 				swipeAndMove(touch);
+
+				if(weapon == null) return;
 				attack_touch();
 			}
 
@@ -359,6 +357,8 @@ class Player extends Entity {
 
 	#if (desktop || html5)
 	function verifyAttack() {
+		if(weapon == null) return;
+
 		if (FlxG.mouse.justPressed || FlxG.keys.anyJustPressed([P, SPACE])) {
 			// Mouse pressionado, chamar a espada
 			var m = new Message(this, weapon, Message.OP_ATTACK);
