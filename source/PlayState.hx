@@ -1,5 +1,9 @@
 package;
 
+import flixel.util.FlxTimer;
+import flixel.ui.FlxAnalog;
+import flixel.util.FlxColor;
+import flixel.ui.FlxBar;
 import monster.OrcMasked;
 import monster.Skeleton;
 import helperClass.HUD;
@@ -114,6 +118,7 @@ class PlayState extends FlxState{
 
 		setCamera();
 
+		_hud.parent = _cam;
 		
 		super.create();
 	}
@@ -126,9 +131,28 @@ class PlayState extends FlxState{
 		_cam.zoom = 11; //9 is okay
 		_cam.zoom = 7;
 		#end
+		// _cam.zoom = 7;
+
+		_cam.setScrollBoundsRect(0, 0, _map.width, _map.height);
+
+
+		var timer = new FlxTimer();
+
+	
+		// _cam.totalScaleY
+		// FlxG.debugger.visible = true;
+
+
  
 		FlxG.cameras.reset(_cam);
-		FlxG.camera.setScrollBoundsRect(0, 0, _map.width, _map.height);
+
+		_hud.changePosition(_cam);
+
+		timer.start(.02, function(Timer:FlxTimer){
+		
+			_hud.changePosition(_cam);
+			
+		});
 	}
 
 	function placeEntities(entityName:String, entityData:Xml):Void{

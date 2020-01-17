@@ -1,5 +1,6 @@
 package helperClass;
 
+import flixel.FlxCamera;
 import flixel.util.FlxColor;
 import flixel.text.FlxText;
 import flixel.FlxG;
@@ -14,13 +15,15 @@ class HUD extends FlxTypedGroup<FlxSprite>{
     var _coin:FlxSprite;
     var df: Float = 20;
     var df2: Float = 323;
+    public var parent: Dynamic;
+    var count = 0.0;
+    var cam: FlxCamera;
 
     public function new(): Void{
         super();
         _fundo = new FlxSprite(); //poderia colocar a linha de baixo aqui com ponto
-        _fundo.makeGraphic(FlxG.width, 20, FlxColor.BLACK);
-        
-
+        _fundo.makeGraphic(FlxG.width, 10, FlxColor.BLACK);
+ 
         _life = new FlxSprite(10, 323);
         _life.loadGraphic(AssetPaths.lifeBar41x12__png , true, 41, 12);
 
@@ -35,7 +38,16 @@ class HUD extends FlxTypedGroup<FlxSprite>{
         _life.animation.add("1", [2], 1, false);
         _life.animation.add("0", [3], 1, false);
 
-        FlxG.log.add(_life.x);
+        // // _life.y = _fundo.y + 2;
+        // _life.x = 650;
+
+        // FlxG.log.add(_life.cameras);
+
+        // _life.scale.x = 4;
+        // _life.scale.y = 4;
+
+        // FlxG.log.add(_life);
+
 
         add(_fundo);
         add(_life);
@@ -53,6 +65,10 @@ class HUD extends FlxTypedGroup<FlxSprite>{
         // this._coin.scale.y = 5;
 
 
+        // FlxG.log.add(FlxG.camera.visible);
+
+        // _fundo.drag.x = _fundo.drag.y = 1600;
+		// _fundo.acceleration.y = 1000; // Cria Gravidade
 
         // this._textCoin.y = this._coin.y - 2;
         //Impedir que o scroll de tela ocorra
@@ -65,21 +81,56 @@ class HUD extends FlxTypedGroup<FlxSprite>{
 
     }
 
-    public function changePosition(x: Float, y: Float): Void{
-        if(x > 114)
-            this._life.x = df + x - 114;
+    override public function update(elapsed:Float):Void{
+        count += elapsed;
 
-        else {
-            this._life.x = df;
-            // this._life.y = df2;
-        }
+        FlxG.watch.add(_life, "x", "lx");
 
-        var test = y - 160;
+        // _life.x += count/10;
 
-        if(y < 160){
-            this._life.y = test + df2;
-        } 
-        else this._life.y = df2;
+        // _fundo.y -= count/10;
+        
+        // _fundo.y = FlxG.height - cam.maxScrollY + cam.scroll.y;
+
+        // FlxG.log.add(FlxG.height);
+
+        super.update(elapsed);
+
+    }
+    public function changePosition(cam: FlxCamera): Void{
+        // FlxG.watch.add(cam, "x", "x");
+        // FlxG.watch.add(cam, "y", "y");
+        // FlxG.watch.add(cam, "width", "width");
+        // FlxG.watch.add(cam, "height", "height");
+        FlxG.watch.add(cam, "maxScrollX", "maxScrollX");
+        // FlxG.watch.add(cam, "minScrollY", "minScrollY");
+        // FlxG.watch.add(cam, "scaleY", "scaleY");
+        // FlxG.watch.add(cam, "totalScaleY", "totalScaleY:");
+        FlxG.watch.add(cam.scroll, "x", "scroll");
+        FlxG.watch.add(FlxG, "width", "width");
+        
+
+
+        // _fundo.y = 0 - cam.scroll.y;
+        // _fundo.y = 330;
+        this.cam = cam;
+
+        _fundo.kill();
+        
+        _fundo.y = FlxG.height - cam.maxScrollY + cam.scroll.y;
+        _fundo.x = -cam.scroll.x;
+
+        _life.y = _fundo.y;
+
+
+
+        _life.x = _fundo.x;
+
+        _textCoin.y = _coin.y = _fundo.y;
+        _coin.y += 1;
+        _coin.x = _life.x + _life.width + 20;
+        _textCoin.x = _coin.x + _coin.width;
+        _textCoin.y -= 3;
     }
 
     public function getHeigth(){
