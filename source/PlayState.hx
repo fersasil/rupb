@@ -1,5 +1,6 @@
 package;
 
+import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import monster.OrcMasked;
 import monster.Skeleton;
@@ -22,23 +23,28 @@ import flixel.group.FlxGroup;
 import flixel.FlxCamera;
 import flixel.system.FlxSound;
 
-import flixel.addons.editors.ogmo.FlxOgmoLoader;
+using helperClass.ogmo.FlxOgmoUtils;
+using helperClass.ogmo.OgmoUtils;
 
 
 class PlayState extends FlxState{
 	var _player:Player;
 	var _boardNext:BoardNext;
-	var _map:FlxOgmoLoader;
-	var _walls:FlxTilemap;
-	var _bk:FlxTilemap;
-	var _bkColor:FlxTilemap;
+
+	var _map: OgmoPackage;
+	var _fakeCollision:FlxTilemap;
+	var _collision:FlxTilemap;
+	var _background:FlxTilemap;
+	var _backgroundColor:FlxTilemap;
+	
 	var _grpBox: FlxTypedGroup<Box>;
 	var _grpCoin: FlxTypedGroup<Coin>;
 	var _grpWater: FlxTypedGroup<Water>;
 	var _grpRock: FlxTypedGroup<Rock>;
 	var _grpMonster: FlxTypedGroup<Monster>;
 	var _grpStair: FlxTypedGroup<Stair>;
-	var sword: Sword;
+
+	var weapon: Sword;
 	var _hud:HUD;
 	var _money:Int;
 	var _health:Int;
@@ -46,7 +52,7 @@ class PlayState extends FlxState{
 	var _deadScreen: DeadScreen;
 	var mail: Mail;
 	var _cam:FlxCamera;
-	public var timer = new FlxTimer();
+	var timer = new FlxTimer();
 
 	var _sndBackground: FlxSound;
 
@@ -58,15 +64,24 @@ class PlayState extends FlxState{
 
 
 	override public function create():Void { 
-		FlxG.log.redirectTraces = true;
 		_money = 0;
 		_health = 3;
+
 		timer = new FlxTimer();
 
-		/**
-			Todo: só criar se houver esses membros
-			com uma verificação
-		**/
+		_background = new FlxTilemap();
+		_backgroundColor = new FlxTilemap();
+		_collision = new FlxTilemap();
+		_fakeCollision = new FlxTilemap();
+		
+		_backgroundColor.load_tilemap(_map, 'assets/images/tiles/', "color");
+		_background.load_tilemap(_map, 'assets/images/tiles/', "background");
+		_collision.load_tilemap(_map, 'assets/images/tiles/', "collision");
+		_fakeCollision.load_tilemap(_map, 'assets/images/tiles/', "fake_collision");
+
+		// 	Todo: só criar se houver esses membros
+		// 	com uma verificação
+
 		_grpBox = new FlxTypedGroup<Box>();
 		_grpCoin = new FlxTypedGroup<Coin>();
 		_grpWater = new FlxTypedGroup<Water>();
@@ -75,48 +90,51 @@ class PlayState extends FlxState{
 		_grpStair = new FlxTypedGroup<Stair>();
 
 		mail = new Mail();
-		_hud = new HUD();
+		_hud = new HUD(CAM_ZOOM);
+
 		_deadScreen = new DeadScreen();
+		
 		_player = new Player(0, 0);
-				
+		_player.setMail(mail);
+
 		_boardNext = new BoardNext();
 		_nextLevel = new NextLevel();
 		
-		//Carrega os layers do mapa
-		_walls = _map.loadTilemap(AssetPaths.tiles__png, 16, 16, "walls");
-		_bk = _map.loadTilemap(AssetPaths.tiles__png, 16, 16, "bk");
-		_bkColor = _map.loadTilemap(AssetPaths.tiles__png, 16, 16, "color");
 		
-		_walls.follow();
-
-		_walls.setTileProperties(92, FlxObject.NONE); //Não colidir com escada
-		_walls.setTileProperties(109, FlxObject.NONE); //Escada inicio
-		_walls.setTileProperties(75, FlxObject.NONE); //Escada fim
+		_collision.setTileProperties(92, FlxObject.NONE); //Não colidir com escada
+		_collision.setTileProperties(109, FlxObject.NONE); //Escada inicio
+		_collision.setTileProperties(75, FlxObject.NONE); //Escada fim
+		_collision.follow();
 
 		//Colocar o jogador e as outras coisas no lugar certo do mapa
-		_map.loadEntities(placeEntities, "entity");
-
-		_player.setMail(mail);
+		_map.level.get_entity_layer('entities').load_entities(placeEntities);
 
 		add(mail); //Se não adicionar o correio ele não atualiza e não funciona!!!!
-		add(_bkColor);
-		add(_bk);
-		add(_walls);
+		
+		add(_backgroundColor);
+		add(_background);
+		add(_collision);
+		add(_fakeCollision);
+		
 		add(_player);
+		
 		add(_grpBox);
 		add(_grpCoin);
 		add(_grpWater);
 		add(_grpMonster);
 		add(_grpRock);
+		
 		add(_deadScreen);
 		add(_boardNext);
 		add(_nextLevel);
+		
 		add(_hud);
 
 		setCamera();
+		setHudCamera();
 
-		_player.setWeapon(sword);
-		
+		_player.setWeapon(weapon);
+
 		super.create();
 	}
 
@@ -126,20 +144,31 @@ class PlayState extends FlxState{
 
 		_cam.zoom = CAM_ZOOM;
 
-		_cam.setScrollBoundsRect(0, 0, _map.width, _map.height);
+		_cam.setScrollBoundsRect(0, 0, _map.level.width, _map.level.height, true);
+
+		_cam.bgColor = FlxColor.TRANSPARENT;
 
 		FlxG.cameras.reset(_cam);
-
-		_hud.changePosition(_cam);
-
-		timer.start(.02, function(Timer:FlxTimer){
-			_hud.changePosition(_cam);
-		});
 	}
 
-	function placeEntities(entityName:String, entityData:Xml):Void{
-		var x:Int = Std.parseInt(entityData.get("x"));
-		var y:Int = Std.parseInt(entityData.get("y"));
+	function setHudCamera() {
+		var _hudCamera = new FlxCamera(0, 0, FlxG.width,FlxG.height, 1);
+		
+		_hudCamera.bgColor = FlxColor.TRANSPARENT;
+		FlxG.cameras.add(_hudCamera);
+
+		FlxCamera.defaultCameras = [_cam];
+		
+		_hud.forEach(function(el) {
+			el.cameras = [_hudCamera];
+		}); 
+	}
+
+	function placeEntities(entityData: EntityData):Void{
+		var x:Int = entityData.x;
+		var y:Int = entityData.y;
+		
+		var entityName = entityData.name;
 		
 		if(entityName == "player"){
 			_player.x = x;
@@ -168,23 +197,23 @@ class PlayState extends FlxState{
 		else if(entityName == "orcMasked"){
 			_grpMonster.add(new OrcMasked(x, y - 3));
 		}
-		else if(entityName == "stairs"){
+		else if(entityName == "stair"){
 			_grpStair.add(new Stair(x, y));
 		}
 	}
 
 	public function allColisions():Void {
-		FlxG.collide(_player, _walls);
+		FlxG.collide(_player, _collision);
 		FlxG.collide(_player, _grpBox);
-		FlxG.collide(_grpBox, _walls);
+		FlxG.collide(_collision, _grpBox);
 		FlxG.collide(_player, _grpRock);
-		FlxG.collide(_grpMonster, _walls);
+		FlxG.collide(_collision, _grpMonster);
 		FlxG.collide(_grpMonster, _grpBox);
 		FlxG.collide(_grpMonster, _grpRock);
 		FlxG.collide(_grpMonster, _boardNext);
 		
-		if(sword != null)
-			FlxG.collide(sword, _grpMonster, playerAttackBox);
+		if(weapon != null)
+			FlxG.collide(weapon, _grpMonster, playerAttackBox);
 
 	}
 
@@ -198,28 +227,34 @@ class PlayState extends FlxState{
 		
 		//Verificar se há overlap entre a caixa e a espada
 		
-		if(sword == null) return;
-		if(!FlxG.overlap(sword, _grpBox, function (sword, box){
-			var m = new Message(sword, box, Message.OP_KILL);
+		if(weapon == null) return;
+		if(!FlxG.overlap(weapon, _grpBox, function (weapon, box){
+			var m = new Message(weapon, box, Message.OP_KILL);
 			m.data = _player.movimentSide ? 1 : 0;
 			mail.send(m);
 		})){
-			if(sword.alive)
-				sword.kill();
+			if(weapon.alive)
+				weapon.kill();
 		}
 	}
 
 	override public function update(elapsed:Float):Void{
 		super.update(elapsed);
 
-		allColisions();		
+		allColisions();
 		allOverlaps();
 		
 		//Todo mover para uma função
-		if(!_player.alive){ //Colocar mensagem que você morreu, etc...
+		verifyPlayerIsAlive();
+	}
+
+	function verifyPlayerIsAlive(){
+		if(!_player.alive){
 			_hud.updateHUD(0, _money);
 			_deadScreen.newDeath(_money);
-			_sndBackground.stop();
+			
+			if(_sndBackground != null)
+				_sndBackground.stop();
 
 			#if (desktop || html5)
 				FlxG.mouse.visible = true;
@@ -277,9 +312,9 @@ class PlayState extends FlxState{
 	}
 
 	//Todo: Refatorar
-	function playerAttackBox(sword: Entity, enemy: Entity): Void{
+	function playerAttackBox(weapon: Entity, enemy: Entity): Void{
 		if(enemy.alive && enemy.exists){
-			var m = new Message(sword, enemy, Message.OP_HURT, 1);
+			var m = new Message(weapon, enemy, Message.OP_HURT, 1);
 			mail.send(m);
 		}
 	}
@@ -294,7 +329,7 @@ class PlayState extends FlxState{
 		this._player = _player;
 	}
 	
-	function setMap(_map:FlxOgmoLoader){
+	function setMap(_map){
 		return this._map = _map;
 	};
 
@@ -324,11 +359,11 @@ class PlayState extends FlxState{
 
 
 	function getWeapon(){
-		return sword;
+		return weapon;
 	}
 
 	function setWeapon(weapon: Sword){
-		this.sword = weapon;
+		this.weapon = weapon;
 
 		if(_player != null)
 			_player.setWeapon(weapon);

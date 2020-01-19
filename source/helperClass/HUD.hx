@@ -1,6 +1,5 @@
 package helperClass;
 
-import flixel.FlxCamera;
 import flixel.util.FlxColor;
 import flixel.text.FlxText;
 import flixel.FlxG;
@@ -9,18 +8,29 @@ import flixel.FlxSprite;
 
 
 class HUD extends FlxTypedGroup<FlxSprite>{
-    var _fundo:FlxSprite;
+    var _background:FlxSprite;
     var _textCoin:FlxText;
     var _life:FlxSprite;
     var _coin:FlxSprite;
+    var count = 0.0;
 
-    public function new(): Void{
+    public function new(scale: Float): Void{
         super();
-        _fundo = new FlxSprite(); //poderia colocar a linha de baixo aqui com ponto
-        _fundo.makeGraphic(FlxG.width, 10, FlxColor.BLACK);
- 
+        _background = new FlxSprite();
+        _background.makeGraphic(FlxG.width, 10, FlxColor.TRANSPARENT);
+        
+        _background.scale.x = scale;
+        _background.scale.y = scale;
+
+        _background.updateHitbox();
+
+
         _life = new FlxSprite(10, 323);
         _life.loadGraphic(AssetPaths.lifeBar41x12__png , true, 41, 12);
+
+        _life.scale.x = scale;
+        _life.scale.y = scale;
+
 
         _coin = new FlxSprite(_life.width + _life.x + 20, 4);
         _coin.loadGraphic(AssetPaths.coin__png, false, 16, 16);
@@ -32,18 +42,27 @@ class HUD extends FlxTypedGroup<FlxSprite>{
         _life.animation.add("2", [1], 1, false);
         _life.animation.add("1", [2], 1, false);
         _life.animation.add("0", [3], 1, false);
-
-        add(_fundo);
+       
+        add(_background);
         add(_life);
         add(_coin);
         add(_textCoin);
 
-        //Poderia se adicionar um a um, mas esse é um jeito mais limpo e mais facil leitura
-        forEach(function(sprite: FlxSprite){
-            sprite.scrollFactor.set(0, 0);
+
+        forEach(function (sprite) {
+            sprite.scale.x = scale;
+            sprite.scale.y = scale;
+            sprite.updateHitbox();
         });
 
-        _fundo.kill();
+        _life.y = _background.y + 2  * scale;
+        _life.x = _background.x + 2 * scale;
+
+        _coin.x = _life.x + _life.width + 20 * scale;
+        
+        _textCoin.y = _coin.y = _life.y;
+        _textCoin.x = _coin.x + _coin.width;
+        _textCoin.y -= 3 * scale;
     }
 
     public function hideHUD(){
@@ -54,23 +73,15 @@ class HUD extends FlxTypedGroup<FlxSprite>{
 
     public function showHUD(){
         forEach(function(sprite: FlxSprite){
-            if(sprite == _fundo) return;
+            if(sprite == _background) return;
             sprite.revive();
         });
     }
 
-    public function changePosition(cam: FlxCamera): Void{
-        _fundo.y = FlxG.height - cam.maxScrollY + cam.scroll.y;
-        _fundo.x = -cam.scroll.x;
+    override function update(elapsed:Float) {
+        //TODO hud has a reference to user data
 
-        _life.y = _fundo.y;
-        _life.x = _fundo.x;
-
-        _textCoin.y = _coin.y = _fundo.y;
-        _coin.y += 1;
-        _coin.x = _life.x + _life.width + 20;
-        _textCoin.x = _coin.x + _coin.width;
-        _textCoin.y -= 3;
+        super.update(elapsed);
     }
 
     public function updateHUD(health:Int = 0, money:Int = 0): Void {
