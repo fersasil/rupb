@@ -153,7 +153,6 @@ class Player extends Entity {
 		//TODO add a falling animation to it and ajust it to only stop when it 
 		// touch the ground or something
 		if(animation.name == "JUMP" && this.isTouching(FlxObject.DOWN)){
-			FlxG.log.add("OI");
 			animation.reset();
 		}
 
