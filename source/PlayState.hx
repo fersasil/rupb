@@ -274,7 +274,9 @@ class PlayState extends FlxState{
 
 	function goNextLevel(player: Entity, winSpot: Entity):Void {
 		if(player.exists && player.alive){
-			_sndBackground.stop();
+			if(_sndBackground != null)
+				_sndBackground.stop();
+			
 			var m = new Message(player, winSpot, Message.OP_WINS, _money);
 			mail.send(m);
 			_nextLevel.wins(_money);
