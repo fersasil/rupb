@@ -43,6 +43,8 @@ class PlayState extends FlxState{
 	var _grpRock: FlxTypedGroup<Rock>;
 	var _grpMonster: FlxTypedGroup<Monster>;
 	var _grpStair: FlxTypedGroup<Stair>;
+	var _grpWeaponReload: FlxTypedGroup<WeaponReload>;
+
 
 	var weapon: Sword;
 	var _hud:HUD;
@@ -88,6 +90,7 @@ class PlayState extends FlxState{
 		_grpMonster = new FlxTypedGroup<Monster>();
 		_grpRock = new FlxTypedGroup<Rock>();
 		_grpStair = new FlxTypedGroup<Stair>();
+		_grpWeaponReload = new FlxTypedGroup<WeaponReload>();
 
 		mail = new Mail();
 		_hud = new HUD(CAM_ZOOM);
@@ -123,6 +126,8 @@ class PlayState extends FlxState{
 		add(_grpWater);
 		add(_grpMonster);
 		add(_grpRock);
+		add(_grpWeaponReload);
+
 		
 		add(_deadScreen);
 		add(_boardNext);
@@ -200,6 +205,9 @@ class PlayState extends FlxState{
 		else if(entityName == "stair"){
 			_grpStair.add(new Stair(x, y));
 		}
+		else if(entityName == "sword"){
+			_grpWeaponReload.add(new WeaponReload(x + 5, y + 3));
+		}
 	}
 
 	public function allColisions():Void {
@@ -220,6 +228,7 @@ class PlayState extends FlxState{
 
 	function allOverlaps():Void {
 		FlxG.overlap(_player, _grpCoin, getCoin);
+		FlxG.overlap(_player, _grpWeaponReload, getWeaponReload);
 		FlxG.overlap(_player, _grpWater, waterLetter);
 		FlxG.overlap(_player, _grpMonster, playerHurts);
 		FlxG.overlap(_player, _boardNext, goNextLevel); 
@@ -310,6 +319,24 @@ class PlayState extends FlxState{
 			var m = new Message(player, coin, Message.OP_KILL);
 			mail.send(m);
 			_hud.updateHUD(Std.int(_player.health), ++_money);
+		}
+	}
+
+	function getWeaponReload(player: Entity, weaponReload: Entity): Void {
+		if(player.alive && player.exists && weaponReload.alive && weaponReload.exists){
+			var m = new Message(player, weaponReload, Message.OP_RELOAD_WEAPON);
+
+			if(weapon == null){
+				FlxG.log.add("SeM arrma");
+				weapon = new Sword();
+				m.op = Message.OP_CREATE_WEAPON;
+				m.dynamicData = weapon;
+			}
+
+			// FlxG.log.add(m);
+
+			mail.send(m);
+			// _hud.updateHUD(Std.int(_player.health), ++_money);
 		}
 	}
 
