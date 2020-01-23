@@ -1,4 +1,5 @@
 package levels;
+import flixel.FlxG;
 import player.Sword;
 
 using helperClass.ogmo.FlxOgmoUtils;
@@ -10,12 +11,12 @@ class Level_1 extends PlayState{
         
         setMap(_map);
         
-        var s = new Sword();
-        setWeapon(s);
+        // var s = new Sword();
+        // setWeapon(s);
+        
+        _sndBackground = FlxG.sound.play(AssetPaths.flags__ogg, 0.1, true);
 
-        // _sndBackground = FlxG.sound.play(AssetPaths.flags__ogg, 0.1, true);
-
-        // setSound(_sndBackground);
+        setSound(_sndBackground);
 
         super.create();
 

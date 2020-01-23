@@ -129,7 +129,13 @@
         {"name": "box", "id": 160, "_eid": "33345808", "x": 96, "y": 256, "originX": -2, "originY": -2},
         {"name": "box", "id": 161, "_eid": "33345808", "x": 96, "y": 272, "originX": -2, "originY": -2},
         {"name": "player", "id": 163, "_eid": "33345912", "x": 48, "y": 256, "width": 16, "height": 16, "originX": 0, "originY": 0, "flippedX": false, "flippedY": false},
-        {"name": "box", "id": 164, "_eid": "33345808", "x": 48, "y": 272, "originX": -2, "originY": -2}
+        {"name": "box", "id": 164, "_eid": "33345808", "x": 48, "y": 272, "originX": -2, "originY": -2},
+        {"name": "sword", "id": 165, "_eid": "57659595", "x": 80, "y": 224, "originX": 0, "originY": 0},
+        {"name": "sword", "id": 166, "_eid": "57659595", "x": 160, "y": 256, "originX": -1.5, "originY": -2},
+        {"name": "sword", "id": 167, "_eid": "57659595", "x": 256, "y": 272, "originX": -1.5, "originY": -2},
+        {"name": "sword", "id": 168, "_eid": "57659595", "x": 160, "y": 192, "originX": -1.5, "originY": -2},
+        {"name": "sword", "id": 169, "_eid": "57659595", "x": 96, "y": 112, "originX": -1.5, "originY": -2},
+        {"name": "sword", "id": 170, "_eid": "57659595", "x": 224, "y": 112, "originX": -1.5, "originY": -2}
       ]
     },
     {

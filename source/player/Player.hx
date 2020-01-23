@@ -227,6 +227,10 @@ class Player extends Entity {
 		weapon = null;
 	}
 
+	public function hasWeapon() {
+		return weapon == null ? false : true;
+	}
+
 	public function setMail(mail:Mail) {
 		_mail = mail;
 	}
