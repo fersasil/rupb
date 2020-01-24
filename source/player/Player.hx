@@ -1,11 +1,11 @@
 package player;
 
+import helperClass.Store;
 import flixel.input.touch.FlxTouch;
 import helperClass.Entity;
 import helperClass.ClickHandler;
 import helperClass.Message;
 import helperClass.Mail;
-
 import flixel.effects.FlxFlicker;
 import flixel.util.FlxTimer;
 import flixel.FlxObject;
@@ -13,10 +13,12 @@ import flixel.FlxG;
 import flixel.system.FlxSound;
 import flixel.math.FlxPoint;
 
+using flixel.util.FlxSpriteUtil;
+
 class Player extends Entity {
 	var start = false;
 	var count = 0;
-	var flikers:Bool = true;
+	var isFlikering:Bool = true;
 	var climbing:Bool = false;
 	var _sndDamage:FlxSound;
 	var _sndJump:FlxSound;
@@ -29,6 +31,7 @@ class Player extends Entity {
 	var weapon:Sword;
 
 	var _mail:Mail;
+	public var store:Store;
 
 	public var timer:FlxTimer;
 
@@ -37,12 +40,13 @@ class Player extends Entity {
 	public static inline var ANIMATION_IDLE_TIME = .5;
 	public static inline var CLIMB_SPEED = 60;
 
-
-	override public function new(?X:Float = 0, ?Y:Float = 0, ?mail:Mail):Void {
+	override public function new(?X:Float = 0, ?Y:Float = 0, ?mail:Mail, store:Store):Void {
 		super(X, Y);
 
-		health = 3;
+		this.store = store;
+		// store.player.getHealth = 3;
 		movimentSide = true; // 0 esquerda 1 direta
+		health = store.player.getHealth();
 
 		// loadGraphic(AssetPaths.sheet_hero_idle28x30__png, true, 30, 30);
 		loadGraphic(AssetPaths.sheet_hero_gray_28x30__png, true, 30, 30);
@@ -70,9 +74,9 @@ class Player extends Entity {
 		drag.x = drag.y = 1600;
 		acceleration.y = 1000; // Cria Gravidade
 		this.maxVelocity.set(120, 200);
-		
+
 		scale.x = .5;
-		scale.y = .6;		
+		scale.y = .6;
 
 		updateHitbox();
 
@@ -83,10 +87,10 @@ class Player extends Entity {
 
 	override public function update(elapsed:Float):Void {
 		#if (desktop || html5)
-			movePlayer();
-			verifyAttack();
+		movePlayer();
+		verifyAttack();
 		#elseif mobile
-			mobile_movement();
+		mobile_movement();
 		#end
 
 		timeAfterLastAnimation(elapsed);
@@ -96,33 +100,29 @@ class Player extends Entity {
 
 	override public function onMessage(m:Message):Void {
 		if (m.op == Message.OP_HURT) {
-			if (flikers) {
-				FlxFlicker.flicker(this);
-				animation.play("HURT");
-				_sndDamage.play();
-				flikers = false;
-			}
+			if (m.to.isFlickering())
+				return;
+
+			store.player.hurt(1);
+
+			// animation.play("HURT");
+			_sndDamage.play();
+			m.to.flicker();
 
 			if (health - 1 == 0) {
 				FlxG.camera.flash();
 				hurt(1);
-			} else {
-
-				//TODO erro
-				if(notShaking){
-					FlxG.camera.shake(0.001, 0.03, function() {
-						notShaking = true;
-					});
-
-					notShaking = false;
-				}
-
-				timer.start(0.2, function(Timer:FlxTimer) {
-					hurt(m.data);
-					flikers = true;
-				});
+				store.player.setHealth(Std.int(m.to.health));
+				return;
 			}
-		} else if (m.op == Message.OP_CLIMB) {
+
+			FlxG.camera.shake(0.005, 0.01);
+
+			timer.start(0.2, function(Timer:FlxTimer) {
+				hurt(m.data);
+			});
+		} // Fim do dano
+		else if (m.op == Message.OP_CLIMB) {
 			velocity.y = -120;
 			climbing = true;
 		} else if (m.op == Message.OP_KILL) {
@@ -149,15 +149,13 @@ class Player extends Entity {
 		var _right:Bool = FlxG.keys.anyPressed([RIGHT, D]) ? true : false;
 		#end
 
-
-		//TODO add a falling animation to it and ajust it to only stop when it 
+		// TODO add a falling animation to it and ajust it to only stop when it
 		// touch the ground or something
-		if(animation.name == "JUMP" && this.isTouching(FlxObject.DOWN)){
+		if (animation.name == "JUMP" && this.isTouching(FlxObject.DOWN)) {
 			animation.reset();
 		}
 
 		FlxG.watch.add(animation, "name", "name animation");
-
 
 		if (_up && this.isTouching(FlxObject.DOWN)) { // Só pula quando estiver encostando no chão
 			velocity.y = -JUMP_VELOCITY - 30;
@@ -174,7 +172,7 @@ class Player extends Entity {
 			movimentSide = true;
 			facing = FlxObject.RIGHT;
 
-			if(animation.finished || animation.name == "IDLE")
+			if (animation.finished || animation.name == "IDLE")
 				animation.play("WALK");
 		}
 		if (_left) {
@@ -182,7 +180,7 @@ class Player extends Entity {
 			movimentSide = false;
 			facing = FlxObject.LEFT;
 
-			if(animation.finished || animation.name == "IDLE")
+			if (animation.finished || animation.name == "IDLE")
 				animation.play("WALK");
 		}
 		if (!_up && !_down && !_left && !_right && animation.finished && timeAfterAnimation > ANIMATION_IDLE_TIME) {
@@ -195,17 +193,16 @@ class Player extends Entity {
 		}
 
 		// animation.play("IDLE");
-
 	}
 
 	public function canClimb(stair) {
 		#if mobile
-			mobileClimb(stair);
+		mobileClimb(stair);
 		#elseif (desktop || html5)
-			if (this.exists && this.alive && FlxG.keys.anyPressed([UP, W])) { // Colocar essa verificação na mensagem?
-				var m = new Message(stair, this, Message.OP_CLIMB, -120);
-				_mail.send(m);
-			}
+		if (this.exists && this.alive && FlxG.keys.anyPressed([UP, W])) { // Colocar essa verificação na mensagem?
+			var m = new Message(stair, this, Message.OP_CLIMB, -120);
+			_mail.send(m);
+		}
 		#end
 	}
 
@@ -248,7 +245,8 @@ class Player extends Entity {
 			if (clickHandler.click) {
 				swipeAndMove(touch);
 
-				if(weapon == null) return;
+				if (weapon == null)
+					return;
 				attack_touch();
 			}
 
@@ -330,10 +328,10 @@ class Player extends Entity {
 	function mobileClimb(stair) {
 		var touch = FlxG.touches.getFirst();
 
-		if(touch == null) return;
+		if (touch == null)
+			return;
 
 		var upTouch = touch.pressed;
-
 
 		if (this.exists && this.alive && upTouch) {
 			var m = new Message(stair, this, Message.OP_CLIMB, -CLIMB_SPEED);
@@ -360,7 +358,8 @@ class Player extends Entity {
 
 	#if (desktop || html5)
 	function verifyAttack() {
-		if(weapon == null) return;
+		if (weapon == null)
+			return;
 
 		if (FlxG.mouse.justPressed || FlxG.keys.anyJustPressed([P, SPACE])) {
 			// Mouse pressionado, chamar a espada
@@ -369,5 +368,4 @@ class Player extends Entity {
 		}
 	}
 	#end
-
 }

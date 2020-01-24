@@ -7,7 +7,7 @@ import flixel.math.FlxPoint;
 import flixel.util.FlxColor;
 import flixel.system.FlxSound;
 
-class Sword extends Entity{
+class Sword extends Weapon{
     var _sndSword:FlxSound;
 
     public function new(): Void {

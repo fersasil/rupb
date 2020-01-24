@@ -122,6 +122,6 @@ class NextLevel extends FlxTypedGroup<FlxSprite> {
 	}
 
 	function resetGame():Void {
-		FlxG.switchState(new PlayState());
+	// 	FlxG.switchState(new PlayState());
 	}
 }

@@ -13,9 +13,16 @@ class HUD extends FlxTypedGroup<FlxSprite>{
     var _life:FlxSprite;
     var _coin:FlxSprite;
     var count = 0.0;
+    var store: Store;
 
-    public function new(scale: Float): Void{
+    public static inline var op_COINS = 0;
+    public static inline var op_HEALTH = 1;
+    public static inline var op_ALL = 2;
+
+    public function new(scale: Float, store: Store): Void{
         super();
+        this.store = store;
+
         _background = new FlxSprite();
         _background.makeGraphic(FlxG.width, 10, FlxColor.TRANSPARENT);
         
@@ -61,7 +68,7 @@ class HUD extends FlxTypedGroup<FlxSprite>{
         _coin.x = _life.x + _life.width + 20 * scale;
         
         _textCoin.y = _coin.y = _life.y;
-        _textCoin.x = _coin.x + _coin.width;
+        _textCoin.x = _coin.x + _coin.width + .1 * scale;
         _textCoin.y -= 3 * scale;
     }
 
@@ -84,8 +91,19 @@ class HUD extends FlxTypedGroup<FlxSprite>{
         super.update(elapsed);
     }
 
-    public function updateHUD(health:Int = 0, money:Int = 0): Void {
-        _textCoin.text = ": " + money;
-        _life.animation.play(Std.string(health));
+    public function updateHUD(op = op_ALL): Void {
+        switch op {
+            case op_ALL: {
+                _textCoin.text = ": " + store.player.getCoin();
+                _life.animation.play(Std.string(store.player.getHealth()));
+            }
+            case op_COINS:{
+                _textCoin.text = ": " + store.player.getCoin();
+            }
+            case op_HEALTH: {
+                _life.animation.play(Std.string(store.player.getHealth()));
+            }
+        }
+        
     }
 }

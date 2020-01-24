@@ -23,6 +23,8 @@ import flixel.group.FlxGroup;
 import flixel.FlxCamera;
 import flixel.system.FlxSound;
 
+import helperClass.Store;
+
 using helperClass.ogmo.FlxOgmoUtils;
 using helperClass.ogmo.OgmoUtils;
 
@@ -55,6 +57,7 @@ class PlayState extends FlxState{
 	var mail: Mail;
 	var _cam:FlxCamera;
 	var timer = new FlxTimer();
+	var store: Store;
 
 	var _sndBackground: FlxSound;
 
@@ -64,10 +67,14 @@ class PlayState extends FlxState{
 		public static inline var CAM_ZOOM = 7;
 	#end
 
+	public function new(store: Store) {
+		this.store = store;
+		super();
+	}
+
 
 	override public function create():Void { 
-		_money = 0;
-		_health = 3;
+		// _health = 3;
 
 		timer = new FlxTimer();
 
@@ -93,11 +100,11 @@ class PlayState extends FlxState{
 		_grpWeaponReload = new FlxTypedGroup<WeaponReload>();
 
 		mail = new Mail();
-		_hud = new HUD(CAM_ZOOM);
+		_hud = new HUD(CAM_ZOOM, store);
 
 		_deadScreen = new DeadScreen();
 		
-		_player = new Player(0, 0);
+		_player = new Player(0, 0, mail, store);
 		_player.setMail(mail);
 
 		_boardNext = new BoardNext();
@@ -139,6 +146,8 @@ class PlayState extends FlxState{
 		setHudCamera();
 
 		_player.setWeapon(weapon);
+
+		
 
 		super.create();
 	}
@@ -259,7 +268,7 @@ class PlayState extends FlxState{
 
 	function verifyPlayerIsAlive(){
 		if(!_player.alive){
-			_hud.updateHUD(0, _money);
+			_hud.updateHUD();
 			_deadScreen.newDeath(_money);
 			
 			if(_sndBackground != null)
@@ -300,7 +309,7 @@ class PlayState extends FlxState{
 	function playerHurts(player: Entity, monster: Entity): Void{
 		if(player.alive && player.exists  && monster.alive && monster.exists){
 			var m = new Message(monster, player, Message.OP_HURT, 1);
-			_hud.updateHUD(Std.int(player.health - 1), _money);
+			_hud.updateHUD();
 			mail.send(m);
 		}
 	}
@@ -318,7 +327,8 @@ class PlayState extends FlxState{
 		if(player.alive && player.exists && coin.alive && coin.exists){
 			var m = new Message(player, coin, Message.OP_KILL);
 			mail.send(m);
-			_hud.updateHUD(Std.int(_player.health), ++_money);
+
+			_hud.updateHUD(HUD.op_COINS);
 		}
 	}
 
@@ -327,7 +337,6 @@ class PlayState extends FlxState{
 			var m = new Message(player, weaponReload, Message.OP_RELOAD_WEAPON);
 
 			if(weapon == null){
-				FlxG.log.add("SeM arrma");
 				weapon = new Sword();
 				m.op = Message.OP_CREATE_WEAPON;
 				m.dynamicData = weapon;
@@ -415,7 +424,7 @@ class PlayState extends FlxState{
 	}
 
 	function setHealth(_health) {
-		return this._health = _health;
+		// return this._health = _health;
 	}
 
 	function setNextLevel(_nextLevel){

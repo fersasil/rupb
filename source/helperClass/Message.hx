@@ -9,6 +9,10 @@ class Message{
     public static inline var OP_ATTACK = 5;
     public static inline var OP_CREATE_WEAPON = 6;
     public static inline var OP_RELOAD_WEAPON = 7;
+    public static inline var STORE_UPDATE_COINS = 8;
+    public static inline var STORE_UPDATE_AMMUNITION = 9;
+    public static inline var STORE_UPDATE_PLAYER_LIFE = 10;
+    public static inline var STORE_UPDATE_PLAYER_WEAPON = 11;
 
     //public static inline var OP_DANO = 0;
 
@@ -18,10 +22,19 @@ class Message{
     public var data:Float;
     public var dynamicData: Dynamic;
 
-    public function new(?from: Entity, ?to: Entity, ?op: Int, ?data:Float): Void{
+    public function new(?from: Entity, ?to: Entity, ?op: Int, ?data:Float, ?dynamicData: Dynamic = null): Void{
         this.to = to;
         this.from = from;
         this.op = op;
         this.data = data;
+        this.dynamicData = dynamicData;
+    }
+
+    public function setMessage(?from: Entity, ?to: Entity, ?op: Int, ?data:Float, ?dynamicData: Dynamic = null): Void{
+        this.to = to;
+        this.from = from;
+        this.op = op;
+        this.data = data;
+        this.dynamicData = dynamicData;
     }
 }

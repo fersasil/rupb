@@ -1,6 +1,7 @@
 package levels;
 import flixel.FlxG;
 import player.Sword;
+import helperClass.Store;
 
 using helperClass.ogmo.FlxOgmoUtils;
 
@@ -10,7 +11,7 @@ class Level_1 extends PlayState{
         _map = FlxOgmoUtils.get_ogmo_package(AssetPaths.Rup__ogmo, AssetPaths.tutorial__json);
         
         setMap(_map);
-        
+    
         // var s = new Sword();
         // setWeapon(s);
         

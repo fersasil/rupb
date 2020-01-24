@@ -4,6 +4,7 @@ import helperClass.Message;
 import helperClass.Entity;
 import flixel.FlxG;
 import flixel.system.FlxSound;
+import player.Player;
 
 
 class Coin extends Entity{
@@ -23,7 +24,12 @@ class Coin extends Entity{
 
     override public function onMessage(m: Message):Void{
         if(m.op == Message.OP_KILL){
-    		_sndCoin.play();
+            var player = cast(m.from, Player);
+
+            _sndCoin.play();
+
+            player.store.player.takeCoin();
+
             kill();
         }
     }
