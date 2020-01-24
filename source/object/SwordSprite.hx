@@ -1,11 +1,9 @@
 package object;
 
-import flixel.FlxG;
-import player.Player;
 import helperClass.Message;
 import helperClass.Entity;
 
-class WeaponReload extends Entity{
+class SwordSprite extends Entity{
     public function new(X: Float, Y: Float): Void{
         super(X, Y);
         loadGraphic(AssetPaths.sword__png, false, 13, 12);

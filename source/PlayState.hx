@@ -45,7 +45,7 @@ class PlayState extends FlxState{
 	var _grpRock: FlxTypedGroup<Rock>;
 	var _grpMonster: FlxTypedGroup<Monster>;
 	var _grpStair: FlxTypedGroup<Stair>;
-	var _grpWeaponReload: FlxTypedGroup<WeaponReload>;
+	var _grpWeapon: FlxTypedGroup<Weapon>;
 
 
 	var weapon: Sword;
@@ -97,7 +97,7 @@ class PlayState extends FlxState{
 		_grpMonster = new FlxTypedGroup<Monster>();
 		_grpRock = new FlxTypedGroup<Rock>();
 		_grpStair = new FlxTypedGroup<Stair>();
-		_grpWeaponReload = new FlxTypedGroup<WeaponReload>();
+		_grpWeapon = new FlxTypedGroup<Weapon>();
 
 		mail = new Mail();
 		_hud = new HUD(CAM_ZOOM, store);
@@ -133,7 +133,7 @@ class PlayState extends FlxState{
 		add(_grpWater);
 		add(_grpMonster);
 		add(_grpRock);
-		add(_grpWeaponReload);
+		add(_grpWeapon);
 
 		
 		add(_deadScreen);
@@ -214,7 +214,7 @@ class PlayState extends FlxState{
 			_grpStair.add(new Stair(x, y));
 		}
 		else if(entityName == "sword"){
-			_grpWeaponReload.add(new WeaponReload(x + 5, y + 3));
+			_grpWeapon.add(new Sword(x + 5, y + 3));
 		}
 	}
 
@@ -229,30 +229,30 @@ class PlayState extends FlxState{
 		FlxG.collide(_grpMonster, _boardNext);
 		
 		if(store.player.getWeapon() != null)
-			FlxG.collide(store.player.getWeapon(), _grpMonster, playerAttackBox);
+		FlxG.collide(store.player.getWeapon(), _grpMonster);
+		// }
 
 	}
 
 
 	function allOverlaps():Void {
 		FlxG.overlap(_player, _grpCoin, getCoin);
-		FlxG.overlap(_player, _grpWeaponReload, getWeaponReload);
+		FlxG.overlap(_player, _grpWeapon, getWeapon);
 		FlxG.overlap(_player, _grpWater, waterLetter);
 		FlxG.overlap(_player, _grpMonster, playerHurts);
 		FlxG.overlap(_player, _boardNext, goNextLevel); 
 		FlxG.overlap(_player, _grpStair, climbStair);
 		
 		//Verificar se há overlap entre a caixa e a espada
+
+		// trace()
 		
-		if(store.player.getWeapon() == null) return;
-		if(!FlxG.overlap(store.player.getWeapon(), _grpBox, function (weapon, box){
-			var m = new Message(weapon, box, Message.OP_KILL);
-			m.data = _player.movimentSide ? 1 : 0;
-			mail.send(m);
-		})){
-			if(store.player.getWeapon().alive)
-				store.player.getWeapon().kill();
-		}
+		playerAttacks();
+
+		// if(!FlxG.overlap(store.player.getWeapon(), _grpBox, attackBox)){
+		// 	// if(store.player.getWeapon().alive)
+		// 	// 	store.player.getWeapon().kill();
+		// }
 	}
 
 	override public function update(elapsed:Float):Void{
@@ -263,6 +263,19 @@ class PlayState extends FlxState{
 		
 		//Todo mover para uma função
 		verifyPlayerIsAlive();
+	}
+
+	function playerAttacks() {
+		var weapon = store.player.getWeapon();
+
+		if(weapon == null) return;
+
+		
+		FlxG.overlap(weapon, _grpBox, playerAttackBox);
+		FlxG.overlap(weapon, _grpMonster, playerAttackBox);
+
+		if(weapon.alive) weapon.kill();
+
 	}
 
 	function verifyPlayerIsAlive(){
@@ -288,6 +301,7 @@ class PlayState extends FlxState{
 	function climbStair(player: Player, stair: Entity):Void {
 		player.canClimb(stair);
 	}
+
 
 	function goNextLevel(player: Entity, winSpot: Entity):Void {
 		if(player.exists && player.alive){
@@ -331,14 +345,21 @@ class PlayState extends FlxState{
 		}
 	}
 
-	function getWeaponReload(player: Entity, weaponReload: Entity): Void {
-		if(player.alive && player.exists && weaponReload.alive && weaponReload.exists){
-			var m = new Message(player, weaponReload, Message.OP_RELOAD_WEAPON);
+	function getWeapon(player: Entity, weapon: Weapon): Void {
+		if(player.alive && player.exists && weapon.alive && weapon.exists){
+			
+			var m: Message;
 
-			if(store.player.getWeapon() == null){
-				store.player.setWeapon(new Sword());
+			if(store.player.getWeapon() != null && store.player.getWeapon() == weapon) {
+				m = new Message(player, weapon, Message.OP_KILL);
+				mail.send(m);
+				return;
 			}
 
+			m = new Message(player, weapon, Message.OP_WEAPON_GET);
+
+			store.player.setWeapon(weapon);
+			
 			mail.send(m);
 			// _hud.updateHUD(Std.int(_player.health), ++_money);
 		}
@@ -347,10 +368,18 @@ class PlayState extends FlxState{
 	//Todo: Refatorar
 	function playerAttackBox(weapon: Entity, enemy: Entity): Void{
 		if(enemy.alive && enemy.exists){
+			// trace("ataque");
 			var m = new Message(weapon, enemy, Message.OP_HURT, 1);
+			
 			mail.send(m);
 		}
 	}
+
+	// function attackBox (weapon: Weapon, box: Box){
+	// 	var m = new Message(weapon, box, Message.OP_KILL);
+	// 	m.data = _player.movimentSide ? 1 : 0;
+	// 	mail.send(m);
+	// }
 
 
 

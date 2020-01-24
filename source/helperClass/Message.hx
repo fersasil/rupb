@@ -7,8 +7,9 @@ class Message{
     public static inline var OP_CLIMB = 3;
     public static inline var OP_WINS = 4;
     public static inline var OP_ATTACK = 5;
-    public static inline var OP_CREATE_WEAPON = 6;
+    public static inline var OP_WEAPON_GET = 6;
     public static inline var OP_RELOAD_WEAPON = 7;
+    
     public static inline var STORE_UPDATE_COINS = 8;
     public static inline var STORE_UPDATE_AMMUNITION = 9;
     public static inline var STORE_UPDATE_PLAYER_LIFE = 10;

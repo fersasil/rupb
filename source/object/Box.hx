@@ -22,6 +22,13 @@ class Box extends Entity {
             kill();
             m.from.kill(); //Faz a espada desaparecer!
     	    _sndBox.play();
+        }
+
+        if(m.op == Message.OP_HURT){
+            hurt(m.data);
+
+            m.from.kill(); //Faz a espada desaparecer!
+    	    _sndBox.play();
         }    
     }
 }

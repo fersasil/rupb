@@ -57,7 +57,7 @@ class MenuState extends FlxState{
         _btnPlay.y = _mainText.y + _mainText.height + 10;
 
 
-        trace(store);
+        // trace(store);
 
 
         add(_btnPlay);
