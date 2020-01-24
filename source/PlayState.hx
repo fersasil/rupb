@@ -145,7 +145,6 @@ class PlayState extends FlxState{
 		setCamera();
 		setHudCamera();
 
-		_player.setWeapon(weapon);
 
 		
 
@@ -229,8 +228,8 @@ class PlayState extends FlxState{
 		FlxG.collide(_grpMonster, _grpRock);
 		FlxG.collide(_grpMonster, _boardNext);
 		
-		if(weapon != null)
-			FlxG.collide(weapon, _grpMonster, playerAttackBox);
+		if(store.player.getWeapon() != null)
+			FlxG.collide(store.player.getWeapon(), _grpMonster, playerAttackBox);
 
 	}
 
@@ -245,14 +244,14 @@ class PlayState extends FlxState{
 		
 		//Verificar se há overlap entre a caixa e a espada
 		
-		if(weapon == null) return;
-		if(!FlxG.overlap(weapon, _grpBox, function (weapon, box){
+		if(store.player.getWeapon() == null) return;
+		if(!FlxG.overlap(store.player.getWeapon(), _grpBox, function (weapon, box){
 			var m = new Message(weapon, box, Message.OP_KILL);
 			m.data = _player.movimentSide ? 1 : 0;
 			mail.send(m);
 		})){
-			if(weapon.alive)
-				weapon.kill();
+			if(store.player.getWeapon().alive)
+				store.player.getWeapon().kill();
 		}
 	}
 
@@ -336,13 +335,9 @@ class PlayState extends FlxState{
 		if(player.alive && player.exists && weaponReload.alive && weaponReload.exists){
 			var m = new Message(player, weaponReload, Message.OP_RELOAD_WEAPON);
 
-			if(weapon == null){
-				weapon = new Sword();
-				m.op = Message.OP_CREATE_WEAPON;
-				m.dynamicData = weapon;
+			if(store.player.getWeapon() == null){
+				store.player.setWeapon(new Sword());
 			}
-
-			// FlxG.log.add(m);
 
 			mail.send(m);
 			// _hud.updateHUD(Std.int(_player.health), ++_money);
@@ -396,16 +391,6 @@ class PlayState extends FlxState{
 	}
 
 
-	function getWeapon(){
-		return weapon;
-	}
-
-	function setWeapon(weapon: Sword){
-		this.weapon = weapon;
-
-		if(_player != null)
-			_player.setWeapon(weapon);
-	}
 
 	function getHud(){
 		return _hud;

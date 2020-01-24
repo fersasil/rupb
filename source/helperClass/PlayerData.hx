@@ -3,7 +3,7 @@ package helperClass;
 import player.Weapon;
 
 class PlayerData {
-    var weapon: Weapon;
+    var weapon: Weapon = null;
     var ammunition: Int;
     var coin: Int;
     var level: Int;
@@ -35,7 +35,7 @@ class PlayerData {
         this.health = health;
     }
 
-    public function updateWeapon(weapon: Weapon){
+    public function setWeapon(weapon: Weapon){
         this.weapon = weapon;
     }
 

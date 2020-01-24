@@ -19,8 +19,8 @@ class WeaponReload extends Entity{
     //Da entidade
     override public function onMessage(m: Message):Void{
         if(m.op == Message.OP_CREATE_WEAPON){
-            var player = cast(m.from, Player);
-            player.setWeapon(m.dynamicData);
+            // var player = cast(m.from, Player);
+            // player.setWeapon(m.dynamicData);
             kill();
         }
         else if(m.op == Message.OP_RELOAD_WEAPON){

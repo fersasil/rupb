@@ -215,18 +215,18 @@ class Player extends Entity {
 		SETTERS
 	 */
 
-	public function setWeapon(weapon:Sword) {
-		this.weapon = weapon;
-	}
+	// public function setWeapon(weapon:Sword) {
+	// 	this.weapon = weapon;
+	// }
 
-	public function destroyWeapon() {
-		// FlxDestroyUtil.destroy(weapon);
-		weapon = null;
-	}
+	// public function destroyWeapon() {
+	// 	// FlxDestroyUtil.destroy(weapon);
+	// 	weapon = null;
+	// }
 
-	public function hasWeapon() {
-		return weapon == null ? false : true;
-	}
+	// public function hasWeapon() {
+	// 	return weapon == null ? false : true;
+	// }
 
 	public function setMail(mail:Mail) {
 		_mail = mail;
@@ -245,7 +245,7 @@ class Player extends Entity {
 			if (clickHandler.click) {
 				swipeAndMove(touch);
 
-				if (weapon == null)
+				if (store.player.getWeapon() == null)
 					return;
 				attack_touch();
 			}
@@ -315,7 +315,7 @@ class Player extends Entity {
 
 		clickHandler.cleanCount();
 
-		var m = new Message(this, weapon, Message.OP_ATTACK);
+		var m = new Message(this, store.player.getWeapon(), Message.OP_ATTACK);
 		_mail.send(m);
 
 		clickHandler.freeClick();
@@ -358,12 +358,12 @@ class Player extends Entity {
 
 	#if (desktop || html5)
 	function verifyAttack() {
-		if (weapon == null)
+		if (store.player.getWeapon() == null)
 			return;
 
 		if (FlxG.mouse.justPressed || FlxG.keys.anyJustPressed([P, SPACE])) {
 			// Mouse pressionado, chamar a espada
-			var m = new Message(this, weapon, Message.OP_ATTACK);
+			var m = new Message(this, store.player.getWeapon(), Message.OP_ATTACK);
 			_mail.send(m);
 		}
 	}
